@@ -4,7 +4,6 @@
 data/*
 Data/
 predictions/
-canonical/
 grids/
 *.h5ad
 !data/merfish_5slice/

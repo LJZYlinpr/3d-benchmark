@@ -43,6 +43,13 @@ $ENV_BIN scripts/build_observed_50um.py \
   --out observed_50um.h5ad
 ```
 
+Generate the seven target files if they are not already present (fixed-width
+strings, no NumPy-2 pickle dependency):
+
+```bash
+MERFISH5_ROOT=$PWD $ENV_BIN src/canonical/make_targets.py
+```
+
 Canonical builder:
 
 ```bash

@@ -40,7 +40,8 @@
 ## Server 1 reproduction (2026-10-23)
 
 - Rebuilt the MERFISH 5-slice input from the committed shards on `aicb1`;
-  canonical `bins_all` X and `target_gt` hashes match the HPC originals.
+  the end-to-end package pipeline (shards -> observed -> targets -> canonical)
+  produces `bins_all` X and `target_gt` hashes identical to the HPC originals.
 - Ran six methods on held-out M1a: ReHo, Ours-EncMTP, PASTE-OT-Linear,
   SpatialZ, SINTER3D, DeepSpatial. Deterministic methods reproduce exactly;
   learned methods differ by <=0.005 module-mean gene PCC (SINTER3D 0.013 on a

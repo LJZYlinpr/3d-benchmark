@@ -11,6 +11,34 @@ Run root (temporary):
 /mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/
 ```
 
+## Fix status (2026-10-23)
+
+Fixed in the same change set:
+
+- `scripts/build_observed_50um.py` materialises `obs['bin_id']` from the
+  shard index.
+- `src/canonical/common.py` + `src/canonical/make_targets.py` now regenerate
+  the seven targets from the rebuilt observed matrix with fixed-width strings;
+  the generated arrays match the converted HPC targets exactly.
+- Target-only 5-slice runners for ReHo, Ours-EncMTP, PASTE-OT-Linear,
+  SpatialZ, SINTER3D, isoST and DeepSpatial are now under
+  `src/methods/merfish/<method>/run_merfish5.py`, with `MERFISH5_ROOT` and
+  `MERFISH5_UPSTREAM` instead of HPC paths.
+- `.gitignore` no longer excludes the `src/canonical/` package; the canonical
+  builders are now committed (the previous GitHub tree had none).
+- PASTE selects `expandable_segments` only on torch >=2.0; torch 1.13 gets
+  `max_split_size_mb:512`.
+- A wrapper (`scripts/run_merfish5_small.sh`) and environment note
+  (`docs/ENVIRONMENT_MERFISH5.md`) were added.
+
+Still open:
+
+- NTF (`tinycudann`), Spateo (`spateo` package + upstream), UniST (1.1 GB
+  upstream + SUICA) and isoST (CUDA PyG extensions) need dedicated
+  environments/upstream code.
+- Exact per-method environment locks and upstream commits are not yet frozen.
+- SINTER3D's prediction keys and the stale status metadata are not fixed.
+
 ## 1. Data rebuild
 
 The repository's compact shards were copied to the server and rebuilt:
@@ -36,6 +64,9 @@ Cross-check against the original HPC canonical:
 | `target_gt.npz` all arrays | `b006a566...d0d1ed28` | `b006a566...d0d1ed28` | yes |
 
 The canonical matrix and target rows are value-identical to the HPC copy.
+The full package pipeline was also rerun end-to-end from the committed shards
+(`build_observed_50um.py` -> `make_targets.py` -> `merfish_5slice.py`) and
+produced the same two hashes.
 
 ### Target `.npz` compatibility
 
@@ -94,22 +125,29 @@ them without upstream code and dedicated environments.
 1. **Hard-coded HPC paths in shared helpers.** `common.py`, `_heart_common.py`
    and `_rb_common.py` set `ROOT` to
    `/storage/.../missing_combos_50um/all_methods`; every runner fails elsewhere.
-   Workaround used here: rewrite to the local run root.
+   Fixed for the new runners via `MERFISH5_ROOT`; the legacy NTF/Spateo
+   scripts still use HPC paths.
 2. **Hard-coded upstream paths in method runners.** `SINTER3D_DIR`, `ISOST_DIR`,
    `SPATIALZ_DIR`, `METHOD_DIR` point into
    `/storage/.../xpy/lab/baseline/methods/...`. The upstream trees are not in
    Git and are not pinned/downloadable by a script.
 3. **The 5-slice runners for the eight newer methods are not in the package.**
-   The package contains NTF/Spateo 5-slice scripts and heart adapters named
-   `run_heart.py`; the actual 5-slice runners used here live only in the HPC
-   workspace under `all_methods/methods/`.
+   Fixed for ReHo, Ours-EncMTP, PASTE-OT-Linear, SpatialZ, SINTER3D, isoST and
+   DeepSpatial (`src/methods/merfish/*/run_merfish5.py`). NTF/Spateo/UniST
+   target-only adapters are still missing.
 4. **Committed shards have no `obs['bin_id']` column.** `bin_id` is the shard
    index; the canonical builder expects a column. Fixed in the merge script,
    but the shards themselves should either add the column or document the index
    contract explicitly.
 5. **Target `.npz` files are NumPy-2 pickles.** They cannot be loaded by NumPy
-   1.22. Save `obs_names`/`slice` as fixed-width Unicode.
-6. **No per-method environment definition.** Server 1 had no matching conda
+   1.22. Fixed by `src/canonical/common.py` + `make_targets.py`: regenerated
+   targets use fixed-width Unicode and match the converted HPC arrays exactly.
+   Legacy target files still need regeneration on older NumPy.
+6. **The package's `.gitignore` excluded `src/canonical/`.** The pattern
+   `canonical/` matched the source directory, so the GitHub tree had no
+   canonical builders. Fixed by removing the pattern and committing
+   `src/canonical/`.
+7. **No per-method environment definition.** Server 1 had no matching conda
    envs; this run used:
    - `VITA_spatialz_opt` (torch 1.13.0+cu117, anndata 0.9.1, ot 0.9.3) plus a
      venv with `torchdiffeq`, `geomloss`, `torch_geometric 2.3.1`,
@@ -120,44 +158,44 @@ them without upstream code and dedicated environments.
 
 ### P1 - method/contract issues
 
-7. **PASTE sets an allocator option that torch 1.13 does not understand.**
+8. **PASTE sets an allocator option that torch 1.13 does not understand.**
    `run_paste_heart.py:160` sets
    `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`; torch 1.13 raises
-   `RuntimeError: Unrecognized CachingAllocator option`. Workaround:
-   `PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512`.
-8. **isoST needs CUDA PyG extensions.** `torch_cluster` was CPU-only; after
+   `RuntimeError: Unrecognized CachingAllocator option`. Fixed in
+   `src/methods/merfish/PASTE-OT-Linear/run_merfish5.py` by selecting the
+   option from the torch major version; the legacy `run_paste_heart.py` keeps
+   the old behaviour.
+9. **isoST needs CUDA PyG extensions.** `torch_cluster` was CPU-only; after
    moving kNN to CPU it failed on `torch_sparse` in `GraphUNet`. A dedicated
    env with CUDA `torch-scatter/sparse/cluster` matching the torch build is
    required.
-9. **SINTER3D prediction contract is incomplete.** Its npz contains
+10. **SINTER3D prediction contract is incomplete.** Its npz contains
    `pred,row_index,bin_id,section,x,y` but omits `method,scenario,genes` that
    the other runners write. It also left `gpu_peak_mb` unset and kept a stale
    `slurm_job: 9383994` from the HPC run.
-10. **Status files are not reset between runs.** `SINTER3D` inherited HPC
+11. **Status files are not reset between runs.** `SINTER3D` inherited HPC
     metadata; `Ours-EncMTP` status elapsed (71.5 s) disagrees with the actual
     run (110.1 s). Status must be reinitialised on every new run.
-11. **Default budgets differ from the reported configuration.** SINTER3D
+12. **Default budgets differ from the reported configuration.** SINTER3D
     defaults to 6,000 steps (reported 3,000); isoST defaults to 60/60/60
     (reported 20/20/20); DeepSpatial defaults to 120 epochs (reported 20).
     The reproduction script must pass the frozen budgets explicitly.
-12. **Metric definitions differ between quick checks and the official table.**
+13. **Metric definitions differ between quick checks and the official table.**
     Raw RMSE on the server is not comparable to the table's standardized RMSE.
     Use `metrics_v1_all` for paper numbers; the module-mean gene PCC above is
     the comparable metric.
 
 ## 5. Recommended next steps
 
-1. Move the 5-slice runners into `src/methods/merfish/<method>/run_merfish5.py`
-   and replace hard-coded paths with `MERFISH5_ROOT` / `MERFISH5_UPSTREAM`.
-2. Add a `scripts/run_merfish5_small.sh` that runs one scenario with the frozen
-   budgets and a `docs/ENVIRONMENT_MERFISH5.md` with exact per-method envs.
-3. Add fixed-width string output to `make_targets.py`; add `bin_id` to the
-   shards or keep the merge-script contract explicit.
+1. Done for seven runners. Remaining: NTF/Spateo/UniST target-only runners.
+2. Done: `scripts/run_merfish5_small.sh` and `docs/ENVIRONMENT_MERFISH5.md`.
+3. Done: `src/canonical/common.py` + `make_targets.py` use fixed-width strings;
+   `bin_id` is materialised by `build_observed_50um.py`.
 4. Package or fetch upstream method trees with pinned commits; do not rely on
    `/storage/.../xpy` paths.
 5. Add a prediction-contract validator (keys, shapes, row order, finiteness)
    and run it for every method.
-6. Fix the torch-version guard for `PYTORCH_CUDA_ALLOC_CONF`.
+6. Done: the PASTE runner selects the allocator option by torch major version.
 7. Record per-run GPU peak, elapsed, config, seed, and library versions in a
    uniform `status.json` that is reset at start.
 
@@ -168,4 +206,6 @@ The exact commands and logs are on server 1 under the run root above:
 `predictions/M1a/`, and `predictions/M1a/server1_vs_hpc_M1a.csv`.
 
 The run root is temporary; the data pipeline is reproducible from the
-committed shards and `targets/` (after the fixed-width conversion).
+committed shards: `build_observed_50um.py` -> `make_targets.py` ->
+`merfish_5slice.py`. The regenerated targets match the converted HPC targets
+exactly for all seven combos.

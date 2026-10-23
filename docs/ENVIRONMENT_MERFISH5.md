@@ -35,14 +35,17 @@ python scripts/build_observed_50um.py \
   --shards-dir data/merfish_5slice \
   --out "$MERFISH5_ROOT/observed_50um.h5ad"
 
-# 2. observed + targets -> canonical/
+# 2. observed -> targets/<combo>/target.npz (7 combos)
 export MERFISH5_ROOT=/path/to/all_methods
+python src/canonical/make_targets.py
+
+# 3. observed + targets -> canonical/
 python src/canonical/merfish_5slice.py
 ```
 
-`targets/*.npz` must store `obs_names` and `slice` as fixed-width Unicode
-(`<U...`), not pickled object arrays. The server 1 run converted them because
-NumPy 1.22 cannot unpickle NumPy-2 object arrays.
+`make_targets.py` writes `obs_names` and `slice` as fixed-width Unicode
+(`<U...`); it does not create pickled object arrays. This is required for
+NumPy 1.22 environments.
 
 ## Python environments (server 1 example)
 
