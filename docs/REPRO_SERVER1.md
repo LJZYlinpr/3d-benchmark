@@ -33,8 +33,9 @@ Fixed in the same change set:
 
 Still open:
 
-- NTF/Spateo/UniST need dedicated environments/upstream code; isoST is
-  resolved (CUDA PyG + KeOps, peak 10.8 GB).
+- NTF/Spateo/UniST now run, but NTF/UniST need a like-for-like budget/config;
+  Spateo must use the held-out export, not the full-volume observed rows.
+  isoST is resolved (CUDA PyG + KeOps, peak 10.8 GB).
 - Exact per-method environment locks and upstream commits are not yet frozen.
 - SINTER3D's prediction keys and the stale status metadata are not fixed.
 
@@ -96,27 +97,32 @@ Target: 25,281 bins x 1,122 genes.
 | SINTER3D | DONE | 554.0 s | not recorded | 0.024909 | 0.012095 | +0.012813 | 0.8750 |
 | DeepSpatial | DONE | 1,171.5 s | 9,908 MB | 0.347453 | 0.346893 | +0.000560 | 0.9993 |
 | isoST | DONE | 542.5 s | 10,814 MB | 0.073029 | 0.081210 | -0.008181 | 0.9822 |
+| NTF | DONE* | 439.8 s | 4,618 MB | 0.209599 | 0.073178 | +0.136421 | 0.5673 |
+| Spateo | DONE | 721.4 s | 1,079 MB | 0.596189 | 0.533007 | +0.063182 | 0.9873 |
+| UniST | DONE* | 3,104.1 s | 5,336 MB | 0.160796 | 0.338791 | -0.177995 | 0.5336 |
 
 `module-mean gene PCC` is the mean over the 18 cell-type marker modules of the
 per-gene PCC median, i.e. the same definition as
 `metrics_v1_all/metrics_by_method_combo.csv`. Predictions were checked for
 shape, finite values, and `row_index` equality with the M1a target rows.
 
-Deterministic methods (ReHo, PASTE, SpatialZ) reproduce exactly. DeepSpatial is
-within 0.0006; Ours-EncMTP differs by 0.0044; isoST by 0.0082; SINTER3D by
-0.0128 on a near-zero signal. The ordering of the seven methods matches the HPC
-table.
+All ten methods ran on M1a. Deterministic methods (ReHo, PASTE, SpatialZ)
+reproduce exactly. DeepSpatial is within 0.0006; Ours-EncMTP differs by 0.0044;
+isoST by 0.0082; SINTER3D by 0.0128 on a near-zero signal. Spateo's correct
+held-out export differs by 0.063 (corr 0.987). NTF (*) and UniST (*) are not
+like-for-like: NTF used the pure-PyTorch fallback for 3,000 iterations (the
+reported HPC value used a different budget), and UniST used the from-scratch
+SUICA pipeline (the HPC reference is from a different run/config). Their
+absolute values must not be over-interpreted.
 
-## 3. Methods not run
+## 3. Methods requiring care
 
-| method | blocker |
+| method | caveat |
 |---|---|
-| NTF | requires `tinycudann`; not available in the generic env |
-| Spateo | requires the `spateo` package and a 650 MB upstream tree; not installed |
-| UniST | 1.1 GB upstream + `SUICA_pro`; per-scenario scripts embed absolute paths |
-
-All three are main/common-task methods. isoST is now runnable with the CUDA
-PyG wheels + KeOps setup documented in `docs/ENVIRONMENT_MERFISH5.md`.
+| NTF | pure-PyTorch fallback (no tinycudann), 3,000 iterations; HPC table used a different budget. In-sample Pearson 0.887, held-out module PCC 0.210 |
+| Spateo | full-volume h5ad fills observed rows with measured values, including the held-out layer. Using it as a target prediction gave 0.999 (leakage). The correct number comes from `holdout_pred_m1a.npz` (held-out diagnostic) -> 0.596 |
+| UniST | from-scratch 300/400 SUICA run in a torch 2.14 venv; HPC table 0.339 comes from a different run/config. The tarball lacks the 1.1 GB of HPC logs/checkpoints, but the pipeline trains from the generated visible data |
+| isoST | needs CUDA PyG + KeOps; peak 10.8 GB, run alone |
 
 ## 4. Issues found
 
@@ -185,12 +191,34 @@ PyG wheels + KeOps setup documented in `docs/ENVIRONMENT_MERFISH5.md`.
     Use `metrics_v1_all` for paper numbers; the module-mean gene PCC above is
     the comparable metric.
 
+14. **Spateo full-volume output leaks ground truth.** The output h5ad fills
+    every observed grid row with measured expression, including the held-out
+    layer; `volume_to_target.py` on it produced 0.999. The runner now saves
+    `holdout_pred_m1a.npz` and `scripts/points_to_target.py` consumes that.
+    Never use the full-volume observed rows as target predictions.
+15. **NTF pure-PyTorch fallback was broken.** `hash_grid_torch.py` needed
+    integer casts, `n_output_dims`, and a corrected `box_offsets` registration
+    (now `NTF_torch_fallback.patch`). The 3,000-iteration run is a smoke test,
+    not a like-for-like reproduction of the HPC NTF budget.
+16. **UniST reference is not pinned.** The from-scratch 300/400 run gives
+    0.1608 vs the HPC 0.3388; the HPC value comes from a different
+    run/configuration, and the exact config/seed is not recorded. The tarball
+    has all code/configs; the 1.1 GB local tree is mostly old logs/checkpoints.
+17. **Coordinate scale differs between volumes and targets.** Target rows are
+    in µm; NTF/Spateo volumes are in mm. `volume_to_target.py` /
+    `points_to_target.py` auto-select 1/1000/0.001 and report the median
+    nearest-neighbour distance; always inspect that line.
+
 ## 5. Recommended next steps
 
-1. Done for seven runners. Remaining: NTF/Spateo/UniST target-only runners.
+1. Done for all ten runners (NTF/Spateo/UniST included).
 2. Done: `scripts/run_merfish5_small.sh` and `docs/ENVIRONMENT_MERFISH5.md`.
 3. Done: `src/canonical/common.py` + `make_targets.py` use fixed-width strings;
    `bin_id` is materialised by `build_observed_50um.py`.
+4. Freeze the exact NTF/UniST budgets, seeds, and HPC reference run IDs; rerun
+   those two for a like-for-like table.
+5. Add an automated contract check to the wrapper (keys, shapes, finite,
+   row_index, coordinate scale).
 4. Package or fetch upstream method trees with pinned commits; do not rely on
    `/storage/.../xpy` paths.
 5. Add a prediction-contract validator (keys, shapes, row order, finiteness)

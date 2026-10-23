@@ -332,8 +332,10 @@ def main():
     n = len(iz)
     h, w = uni.shape[1], uni.shape[2]
     coords = np.stack([xc[ix], yc[iy], zc[iz]], 1).astype(np.float32)
-    is_obs = obs_mask[iz, iy, ix]
-    assert int((~is_obs).sum()) == int(query_mask.sum()), "query count mismatch vs grid"
+    # For a held-out run the input observed matrix contains only the visible
+    # sections; the grid's obs_mask still covers all five.  Use the input
+    # observed voxels as the observed set so held-out target voxels are sampled.
+    is_obs = np.zeros(n, dtype=bool)
 
     X_out = np.empty((n, adata.n_vars), dtype=np.float32)
     # fill observed rows first (exact measured values)
@@ -344,7 +346,8 @@ def main():
     pos_c = np.clip(pos, 0, n - 1)
     keep = uflat[pos_c] == oflat
     n_obs_outside = int((~keep).sum())
-    assert keep.sum() == int(is_obs.sum()), "observed voxel mapping broken"
+    is_obs[pos[keep]] = True
+    assert keep.sum() + n_obs_outside == adata.n_obs, "observed voxel mapping broken"
     X_out[pos[keep]] = adata.X[keep]
     src = np.full(n, -1, dtype=np.int64)
     src[pos[keep]] = np.nonzero(keep)[0]

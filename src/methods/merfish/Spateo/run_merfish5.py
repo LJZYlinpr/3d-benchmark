@@ -430,6 +430,17 @@ def main():
         ev_rows, ev_truth = tr_rows, tr_expr
         ev_label = f"in-sample ({ev_rows.size} obs pts)"
     pred_obs = predict_chunks(model, coords_norm[ev_rows], device, chunk=args.chunk)
+    if ho_rows.size:
+        # Save the held-out predictions, not the measured rows in the full
+        # volume (those are ground truth and would leak into a target metric).
+        np.savez_compressed(
+            os.path.join(OUTDIR, f"holdout_pred_{args.tag or 'm1a'}.npz"),
+            pred=np.clip(pred_obs, 0, None).astype(np.float32),
+            x=coords_mm[ev_rows, 0].astype(np.float64),
+            y=coords_mm[ev_rows, 1].astype(np.float64),
+            z=coords_mm[ev_rows, 2].astype(np.float64),
+            row_index=ev_rows.astype(np.int64),
+        )
     ins = pcc_stats(np.clip(pred_obs, 0, None), ev_truth)
     ins["eval_sec"] = round(time.time() - t_ev, 1)
     ins["n_points"] = int(ev_rows.size)

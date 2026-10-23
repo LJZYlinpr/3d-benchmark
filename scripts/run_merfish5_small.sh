@@ -110,8 +110,8 @@ for method in "${METHODS[@]}"; do
       eval "$("$ROOT/scripts/make_spateo_shim.sh" "$ROOT/spateo_shim")"
       HO=$(holdout_iz)
       run_one Spateo src/methods/merfish/Spateo/run_merfish5.py --holdout-iz "$HO" || fail=1
-      "$PY_COMMON" scripts/volume_to_target.py \
-        --volume "$MERFISH5_ROOT/Spateo/Spateo_50um_uniform.h5ad" \
+      "$PY_COMMON" scripts/points_to_target.py \
+        --points-npz "$MERFISH5_ROOT/Spateo/holdout_pred_m1a.npz" \
         --target-gt "$MERFISH5_ROOT/canonical/target_gt.npz" \
         --scenario "$SCENARIO" --method Spateo \
         --out "$MERFISH5_ROOT/predictions/$SCENARIO/Spateo.npz" || fail=1
