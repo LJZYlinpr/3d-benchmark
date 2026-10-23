@@ -1,10 +1,14 @@
 # Data and generated artifacts are intentionally not committed.
-data/
+# Exception: the compact MERFISH 5-slice shards are small, lossless inputs
+# needed to run the reproduction without the 2.9 GB raw cell file.
+data/*
 Data/
 predictions/
 canonical/
 grids/
 *.h5ad
+!data/merfish_5slice/
+!data/merfish_5slice/*.h5ad
 *.h5
 *.npz
 *.log

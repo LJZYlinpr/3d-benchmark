@@ -34,6 +34,15 @@ export WORK_ROOT=/path/to/3d_benchmark/Workspace/merfish_test
 export ENV_BIN=/path/to/conda/envs/spateo/bin/python
 ```
 
+The repository ships the 5-slice input as five compact shards. Rebuild the
+single `observed_50um.h5ad` first (value-identical `X` and coordinates):
+
+```bash
+$ENV_BIN scripts/build_observed_50um.py \
+  --shards-dir data/merfish_5slice \
+  --out observed_50um.h5ad
+```
+
 Canonical builder:
 
 ```bash

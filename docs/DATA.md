@@ -1,7 +1,9 @@
 # Data
 
-No raw `.h5ad`, prediction, or volume file is committed to this repository.
-The following describes the inputs used by the benchmark.
+No raw cell-level `.h5ad`, prediction, or volume file is committed to this
+repository. The only committed data are five compact, lossless MERFISH 5-slice
+shards under `data/merfish_5slice/` (see below). The following describes the
+inputs used by the benchmark.
 
 ## MERFISH
 
@@ -20,6 +22,28 @@ sections .006-.010
 50 um legacy bins
 7 held-out scenarios M1a-M3a
 ```
+
+Committed compact input (no raw cells needed):
+
+```text
+data/merfish_5slice/observed_50um_S1.h5ad ... S5.h5ad
+  122,669 50 µm bins x 1,122 genes, float32 CSR, ~116 MiB total
+```
+
+Rebuild the single file consumed by the canonical builder:
+
+```bash
+python scripts/build_observed_50um.py \
+  --shards-dir data/merfish_5slice \
+  --out observed_50um.h5ad
+```
+
+The shards keep only the fields the benchmark uses (`slice`, `x_mm`, `y_mm`,
+`z_mm`, `n_cells`, `ix`, `iy`, `iz`, `celltype`, `domain`,
+`obsm['X_aligned']`, gene names). The rebuild is value-identical in `X` and
+coordinates to the full HPC `observed_50um.h5ad`. The 2.9 GB cell-level file
+`ABCA-3_slices_006-010.h5ad` is **not** read by the benchmark and is not
+committed; it can be obtained from ABC Atlas (`Zhuang-ABCA-3`, CC BY 4.0).
 
 The historical 50 µm grid is kept only for reproduction of the older 5-slice
 results. The v1 grid policy is 10/20/40/100 µm.
