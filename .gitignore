@@ -1,0 +1,16 @@
+# Data and generated artifacts are intentionally not committed.
+data/
+Data/
+predictions/
+canonical/
+grids/
+*.h5ad
+*.h5
+*.npz
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+envs/full/
