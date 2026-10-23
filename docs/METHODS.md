@@ -1,6 +1,7 @@
 # Methods
 
-Per-method reproduction notes: [methods/index.md](methods/index.md).
+Per-method reproduction notes: [methods/index.md](methods/index.md).  
+Method construction/provenance from xpy: [METHOD_CONSTRUCTION.md](METHOD_CONSTRUCTION.md).
 
 ## Counts
 

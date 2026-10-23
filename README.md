@@ -135,6 +135,7 @@ grid_{10,20,40,100}um.npz
 
 - `docs/REPRODUCE.md` — MERFISH 5-slice, heart and So3D commands.
 - `docs/methods/index.md` — per-method reproduction documents.
+- `docs/METHOD_CONSTRUCTION.md` — how adapters were constructed from xpy, including provenance/patch caveats.
 - `docs/METRICS.md` — new metric definitions.
 - `docs/METHODS.md` — method code and known deviations.
 - `docs/DATA.md` — input formats and data locations.
