@@ -76,7 +76,8 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
   data/merfish_5slice/      compact committed MERFISH 5-slice 50 µm shards
   docs/                     data, methods, metrics, environment, reproduction
   docs/methods/             per-method/per-baseline reproduction notes
-  envs/                     conda env exports (from-history; not full lockfiles)
+  envs/                     conda env exports (from-history) + merfish5 pip freezes
+  vendor/SINTER3D/          vendored SINTER3D source (no public commit anchor)
   manifests/                dataset/scenario/module manifests (no raw data)
   results/                  small summary tables, no predictions/volumes
   src/
@@ -98,6 +99,10 @@ committed. The exception is `data/merfish_5slice/`: five lossless per-slice
 `scripts/build_observed_50um.py`.
 
 ## Quick start
+
+For the tested fresh-clone path see
+[`docs/QUICKSTART_MERFISH5.md`](docs/QUICKSTART_MERFISH5.md); the environment
+lessons are in [`docs/REPRODUCTION_LESSONS.md`](docs/REPRODUCTION_LESSONS.md).
 
 ### 1. Create an environment
 

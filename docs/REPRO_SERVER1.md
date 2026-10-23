@@ -30,6 +30,15 @@ Fixed in the same change set:
   `max_split_size_mb:512`.
 - A wrapper (`scripts/run_merfish5_small.sh`) and environment note
   (`docs/ENVIRONMENT_MERFISH5.md`) were added.
+- `scripts/setup_merfish5_env.sh` bootstraps the common/omni environments and
+  the local CUDA 11.7/KeOps tree; `envs/merfish5/*.pip.txt` records the tested
+  freezes.
+- SINTER3D source is vendored under `vendor/SINTER3D` (30 KB; no public commit
+  anchor), so no external snapshot is needed.
+- All ten prediction files pass `scripts/validate_predictions.py` (shape,
+  finiteness, M1a row alignment).
+- `docs/QUICKSTART_MERFISH5.md` is the fresh-clone path; lessons are in
+  `docs/REPRODUCTION_LESSONS.md`.
 
 Still open:
 

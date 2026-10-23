@@ -73,8 +73,10 @@ fetch_tar aristoteleo spateo-release cbea5b322316dd1d3cbcd06bd0bc61368fe0bff3 "$
 fetch_tar senlin-lin SpatialZ e1b5ed01e933729149e08399febca08db16ced14 "$UPSTREAM/SpatialZ"
 fetch_tar yyh030806 DeepSpatial fdb98657fca95679cc45adf3510a161de05bca08 "$UPSTREAM/DeepSpatial"
 
-if [ ! -d "$UPSTREAM/SINTER3D/SINTER3D-master" ]; then
-  echo "[warn] SINTER3D/SINTER3D-master missing; supply it separately" >&2
+if [ -d "$UPSTREAM/SINTER3D/SINTER3D-master" ]; then
+  echo "[info] using supplied SINTER3D tree under $UPSTREAM/SINTER3D"
+else
+  echo "[info] SINTER3D is vendored under vendor/SINTER3D/SINTER3D-master; no fetch needed"
 fi
 
 echo "[done] upstream root: $UPSTREAM"

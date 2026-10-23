@@ -25,6 +25,10 @@ documented in `docs/DATA.md`. The historical 50 µm grids are not produced by
 this v1 command.
 
 ## 2. MERFISH 5-slice
+For a tested fresh-clone walkthrough (env setup, upstream fetch, data build,
+ten-method run, validation) see `docs/QUICKSTART_MERFISH5.md`. Environment
+pitfalls are collected in `docs/REPRODUCTION_LESSONS.md`.
+
 
 Data root example:
 

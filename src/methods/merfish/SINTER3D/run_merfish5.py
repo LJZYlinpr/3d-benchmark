@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 import time
 import traceback
 
@@ -31,7 +32,14 @@ import _heart_common as hc  # noqa: E402
 
 METHOD = "SINTER3D"
 OUTDIR = os.path.join(hc.METHODS_ROOT, "SINTER3D")
-SINTER3D_DIR = os.path.join(os.environ["MERFISH5_UPSTREAM"], "SINTER3D", "SINTER3D-master")
+_UPSTREAM = os.environ.get("MERFISH5_UPSTREAM")
+_UP_DIR = Path(_UPSTREAM) / "SINTER3D" / "SINTER3D-master" if _UPSTREAM else None
+_VENDOR = Path(__file__).resolve().parents[4] / "vendor" / "SINTER3D" / "SINTER3D-master"
+SINTER3D_DIR = str(_UP_DIR if _UP_DIR and _UP_DIR.is_dir() else _VENDOR)
+if not os.path.isdir(SINTER3D_DIR):
+    raise SystemExit(
+        f"SINTER3D source not found at {_UP_DIR} or {_VENDOR}; "
+        "the repository should contain vendor/SINTER3D/SINTER3D-master")
 if SINTER3D_DIR not in sys.path:
     sys.path.insert(0, SINTER3D_DIR)
 

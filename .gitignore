@@ -2,6 +2,9 @@
 # Exception: the compact MERFISH 5-slice shards are small, lossless inputs
 # needed to run the reproduction without the 2.9 GB raw cell file.
 data/*
+/work/
+/upstream/
+/spateo_shim/
 Data/
 predictions/
 grids/
