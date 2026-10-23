@@ -1,0 +1,162 @@
+diff --git a/model/base_model.py b/model/base_model.py
+index 70a5873..d8f9013 100644
+--- a/model/base_model.py
++++ b/model/base_model.py
+@@ -8,6 +8,11 @@ from .utils.schedulers import ExponentialScheduler
+ from .utils.modules_ODE import PCooStep, PUnetStep, PJointV2
+ from .utils.losses import SinkhornLoss, one_nn_mse
+ 
++# GPU-batching reorganization (2026-08-20, registered in benchmark/METHOD_CHANGES.md):
++# True = batched euler + discrete adjoint over all slice pairs per training step
++# (bit-identical per-pair math, see model/utils/batched_ode.py). False = upstream loop.
++USE_BATCHED_ODE = True
++
+ 
+ class IsoST(Trainer):
+     def __init__(self, gene_dim, hidden_dim, delta_d=0.2,
+@@ -98,6 +103,12 @@ class IsoST(Trainer):
+             return self.w_coo * coo_loss + self.w_seq * seq_loss
+ 
+     def _compute_total_loss(self, u_lists, depth_dir, model, loss_type, reversed=False):
++        # GPU-batching reorganization (2026-08-20, registered in benchmark/METHOD_CHANGES.md):
++        # batched euler + discrete adjoint over all slice pairs of one training step,
++        # bit-identical per-pair math (see model/utils/batched_ode.py). Active only for
++        # stride=1 (the official config); any other stride uses the upstream loop.
++        if USE_BATCHED_ODE and self.stride == 1:
++            return self._compute_total_loss_batched(u_lists, depth_dir, model, loss_type, reversed)
+         total_loss = 0.0
+         slide_num = len(u_lists)
+         for kk in range(slide_num - self.stride):
+@@ -117,6 +128,44 @@ class IsoST(Trainer):
+                 total_loss += loss / self.stride
+         return total_loss
+ 
++    def _compute_total_loss_batched(self, u_lists, depth_dir, model, loss_type, reversed=False):
++        """Same per-pair math as _compute_total_loss, with all slice-pair euler
++        trajectories integrated in one batched pass (stride == 1 only)."""
++        from .utils.batched_ode import BatchedEulerAdjoint
++        slide_num = len(u_lists)
++        pairs = []
++        loss_specs = []
++        for kk in range(slide_num - self.stride):
++            u0 = u_lists[kk]
++            index_target, depth_target = [], None
++            for s in range(self.stride):
++                d = depth_dir[kk + s]
++                if reversed:
++                    d = d.flip(dims=[0])
++                depth_target = d if s == 0 else torch.cat([depth_target[:-1], d], dim=0)
++                index_target.append(len(depth_target) - 1 if s == 0 else index_target[-1] + len(d) - 1)
++            dtv = depth_target[1:] - depth_target[:-1]
++            pairs.append((u0, depth_target, dtv))
++            loss_specs.append((kk, index_target))
++
++        offsets = [0]
++        for u0, _, _ in pairs:
++            offsets.append(offsets[-1] + u0.shape[0])
++        u0_cat = torch.cat([p[0] for p in pairs], dim=0)
++        y_final = BatchedEulerAdjoint.apply(
++            model, u0_cat,
++            tuple(offsets), tuple(p[2] for p in pairs), tuple(p[1].shape[0] for p in pairs),
++            *tuple(model.parameters()))
++
++        total_loss = 0.0
++        for b, (kk, index_target) in enumerate(loss_specs):
++            for j, true in enumerate(u_lists[kk + 1: kk + self.stride + 1]):
++                # stride==1: index_target[j] is the final trajectory step
++                pred = y_final[offsets[b]:offsets[b + 1]]
++                loss = self._compute_loss_component(pred.to(self.device), true.to(self.device), loss_type)
++                total_loss += loss / self.stride
++        return total_loss
++
+     def _compute_loss(self, u_lists, loss_type='joint'):
+         total_loss = self._compute_total_loss(u_lists, self.depth_dir, self.f_joint, loss_type)
+         if self.dual:
+diff --git a/model/utils/losses.py b/model/utils/losses.py
+index 3964660..419df2f 100644
+--- a/model/utils/losses.py
++++ b/model/utils/losses.py
+@@ -41,7 +41,14 @@ def SinkhornLoss(true_obs, est_obs, blur=0.05, scaling=0.5):
+                                      using only a batch of true cells to save computational costs.
+     :return: (float) Wasserstein distance.
+     '''
+-    ot_solver = geomloss.SamplesLoss("sinkhorn", p=2, blur=blur, scaling=scaling, debias=True, backend="tensorized")
++    # audit 2026-08-14: backend "online" streams the kernel evaluation — mathematically
++    # identical to "tensorized" (verified |Δloss|≈3e-9, |Δgrad|≈9e-9 on the same inputs)
++    # but O(n) GPU memory instead of O(n^2), which is required for the official
++    # full-slice configuration. Requires pykeops 2.2.3 + CUDA_PATH pointing to the
++    # project toolchain (/mnt/data1/linpeiran/005/envs/cuda-nvcc-11.8.89).
++    # Registered in benchmark/METHOD_CHANGES.md.
++    ot_solver = geomloss.SamplesLoss("sinkhorn", p=2, blur=blur, scaling=scaling, debias=True,
++                                     backend="online")
+     loss = ot_solver(true_obs, est_obs)
+     return loss
+ 
+diff --git a/model/utils/modules_ODE.py b/model/utils/modules_ODE.py
+index a9ed360..4c53234 100644
+--- a/model/utils/modules_ODE.py
++++ b/model/utils/modules_ODE.py
+@@ -142,7 +142,9 @@ class PCooStep(GNN):
+         self.sqrt_d = sqrt_d
+         self.z_distribute = z_distribute
+ 
+-    def forward(self, x, edge_index):
++    def forward(self, x, edge_index, noise=None):
++        # noise: optional pre-drawn raw noise (GPU-batching reorganization, 2026-08-20,
++        # registered in benchmark/METHOD_CHANGES.md). When None, behaves exactly as upstream.
+         x = self.tfc_1(x, edge_index)
+         x = self.tanh(x)
+ 
+@@ -151,7 +153,7 @@ class PCooStep(GNN):
+ 
+         if self.sigma[2] > 1e-4:
+             drift_coo = self.tfc_3(x, edge_index)
+-            z = torch.randn_like(drift_coo, device=x.device)
++            z = noise if noise is not None else torch.randn_like(drift_coo, device=x.device)
+             z[:, 0] *= self.sigma[0]
+             z[:, 1] *= self.sigma[1]
+             z[:, 2] *= self.sigma[2]
+@@ -159,7 +161,7 @@ class PCooStep(GNN):
+             drift_coo_ = self.tfc_3(x, edge_index)
+             ones_column = torch.ones(drift_coo_.shape[0], 1, device=drift_coo_.device)
+             drift_coo = torch.cat([drift_coo_, ones_column], dim=1)
+-            z = torch.randn_like(drift_coo, device=x.device)
++            z = noise if noise is not None else torch.randn_like(drift_coo, device=x.device)
+             z[:, 0] *= self.sigma[0]
+             z[:, 1] *= self.sigma[1]
+             z[:, 2] *= 0
+@@ -181,9 +183,12 @@ class PUnetStep(nn.Module):
+         self.std = std
+         self.sqrt_d = sqrt_d
+ 
+-    def forward(self, x, edge_index):
+-        drift_coo = self.net(x, edge_index)
+-        z = torch.randn_like(drift_coo, device=x.device)
++    def forward(self, x, edge_index, noise=None, batch=None):
++        # noise / batch: optional args for the GPU-batching reorganization (2026-08-20,
++        # registered in benchmark/METHOD_CHANGES.md). When both are None, behaves
++        # exactly as upstream (batch=None = single graph in GraphUNet).
++        drift_coo = self.net(x, edge_index, batch=batch)
++        z = noise if noise is not None else torch.randn_like(drift_coo, device=x.device)
+         return drift_coo + self.std * z / self.sqrt_d
+ 
+ 
+@@ -304,7 +309,17 @@ class PJointV2(nn.Module):
+         seq_out = self.p_seq(x, edge_index)
+         drift_ = torch.cat([coo_out, seq_out], dim=1)
+         return drift_
+-    
++
++    def forward_batched(self, t, x, batch, edge_index, noise_coo=None, noise_seq=None):
++        # GPU-batching reorganization (2026-08-20, registered in benchmark/METHOD_CHANGES.md):
++        # same p_coo/p_seq modules, same per-graph message passing (torch_geometric batch
++        # semantics), KNN computed by the caller with the same torch_cluster.knn_graph call
++        # but a per-graph batch vector. Per-pair arithmetic identical to self.forward.
++        coo_out = self.p_coo(x[:, :3], edge_index, noise=noise_coo)
++        seq_out = self.p_seq(x, edge_index, noise=noise_seq, batch=batch)
++        drift_ = torch.cat([coo_out, seq_out], dim=1)
++        return drift_
++
+ 
+ class PJointLabel(nn.Module):
+     def __init__(self, p_coo, p_seq, topk):

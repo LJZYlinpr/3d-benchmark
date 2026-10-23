@@ -22,6 +22,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 : "${MERFISH5_UPSTREAM:?set MERFISH5_UPSTREAM to the upstream methods directory}"
 PY_COMMON="${PY_COMMON:-python}"
 PY_DEEPSPATIAL="${PY_DEEPSPATIAL:-$PY_COMMON}"
+PY_UNIST="${PY_UNIST:-$PY_COMMON}"
 SCENARIO="${SCENARIO:-M1a}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 export CUDA_VISIBLE_DEVICES
@@ -41,11 +42,35 @@ if [ ${#METHODS[@]} -eq 0 ]; then
   METHODS=(ReHo Ours-EncMTP PASTE-OT-Linear SpatialZ SINTER3D DeepSpatial)
 fi
 
+prepare_visible() {
+  local method="$1"
+  local out="$MERFISH5_ROOT/$method/visible_${SCENARIO}.h5ad"
+  "$PY_COMMON" scripts/make_visible_observed.py \
+    --observed "$MERFISH5_ROOT/observed_50um.h5ad" \
+    --scenarios "$MERFISH5_ROOT/canonical/scenarios.json" \
+    --combo "$SCENARIO" --out "$out"
+}
+
+holdout_iz() {
+  "$PY_COMMON" - "$MERFISH5_ROOT" "$SCENARIO" <<'PYEOF'
+import json, sys, numpy as np
+root, combo = sys.argv[1], sys.argv[2]
+sec = json.load(open(root + "/canonical/sections.json"))
+sc = json.load(open(root + "/canonical/scenarios.json"))
+spec = next(x for x in sc["scenarios"] if x["name"] == combo)
+target = spec["target"][0]
+z = sec[target]["z_um"] / 1000.0
+g = np.load(root + "/grid_50um.npz")
+print(int(np.argmin(np.abs(g["z_centers"] - z))))
+PYEOF
+}
+
 run_one() {
   local method="$1" script="$2"; shift 2
   local py="$PY_COMMON"
   case "$method" in
     DeepSpatial) py="$PY_DEEPSPATIAL" ;;
+    UniST) py="$PY_UNIST" ;;
   esac
   echo "=== $method ($SCENARIO) ==="
   ( cd "$ROOT" && "$py" "$script" "$@" )
@@ -69,8 +94,32 @@ for method in "${METHODS[@]}"; do
       run_one SINTER3D src/methods/merfish/SINTER3D/run_merfish5.py --scenario "$SCENARIO" --steps 3000 || fail=1 ;;
     DeepSpatial)
       run_one DeepSpatial src/methods/merfish/DeepSpatial/run_merfish5.py --scenario "$SCENARIO" --epochs 20 || fail=1 ;;
+    NTF)
+      prepare_visible NTF || fail=1
+      MERFISH5_OBSERVED="$MERFISH5_ROOT/NTF/visible_${SCENARIO}.h5ad" \
+      MERFISH5_NTF_OUT="$MERFISH5_ROOT/NTF" \
+      MERFISH5_GRID="$MERFISH5_ROOT/grid_50um.npz" \
+        run_one NTF src/methods/merfish/NTF/run_merfish5.py --n_iter 3000 --batch_size 8192 || fail=1
+      "$PY_COMMON" scripts/volume_to_target.py \
+        --volume "$MERFISH5_ROOT/NTF/NTF_50um_uniform.h5ad" \
+        --target-gt "$MERFISH5_ROOT/canonical/target_gt.npz" \
+        --scenario "$SCENARIO" --method NTF \
+        --out "$MERFISH5_ROOT/predictions/$SCENARIO/NTF.npz" || fail=1
+      ;;
+    Spateo)
+      eval "$("$ROOT/scripts/make_spateo_shim.sh" "$ROOT/spateo_shim")"
+      HO=$(holdout_iz)
+      run_one Spateo src/methods/merfish/Spateo/run_merfish5.py --holdout-iz "$HO" || fail=1
+      "$PY_COMMON" scripts/volume_to_target.py \
+        --volume "$MERFISH5_ROOT/Spateo/Spateo_50um_uniform.h5ad" \
+        --target-gt "$MERFISH5_ROOT/canonical/target_gt.npz" \
+        --scenario "$SCENARIO" --method Spateo \
+        --out "$MERFISH5_ROOT/predictions/$SCENARIO/Spateo.npz" || fail=1
+      ;;
     isoST)
       run_one isoST src/methods/merfish/isoST/run_merfish5.py --scenario "$SCENARIO" --epochs 20,20,20 || fail=1 ;;
+    UniST)
+      run_one UniST src/methods/merfish/UniST/run_merfish5.py --scenario "$SCENARIO" --gae-epochs 300 --inr-epochs 400 || fail=1 ;;
     *)
       echo "unknown method: $method" >&2; fail=1 ;;
   esac

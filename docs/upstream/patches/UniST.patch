@@ -1,0 +1,346 @@
+diff --git a/external/SUICA_pro/networks/gae.py b/external/SUICA_pro/networks/gae.py
+index 2e1d965..5b76bc6 100755
+--- a/external/SUICA_pro/networks/gae.py
++++ b/external/SUICA_pro/networks/gae.py
+@@ -22,6 +22,18 @@ class content_graph_conv(nn.Module):
+         x = x @ self.weight
+         if self.bias is not None:
+             x += self.bias
++        if isinstance(adj, tuple):
++            # 2026-08-21 sparse-GCN mode (benchmark/METHOD_CHANGES.md):
++            # adj = (src_local, dst_local) in-batch edge lists; y[src] += x[dst]
++            # equals torch.mm(dense_adj, x) up to float accumulation order
++            # (~1e-7 relative, registered accepted noise class).
++            es, ed = adj
++            if es.numel() == 0:  # empty in-batch neighbourhood (never with include_self)
++                return torch.zeros(0, x.shape[1], dtype=x.dtype, device=x.device)
++            n = int(es.max()) + 1
++            y = torch.zeros(n, x.shape[1], dtype=x.dtype, device=x.device)
++            y.scatter_add_(0, es[:, None].expand(-1, x.shape[1]), x[ed])
++            return y
+         return torch.mm(adj, x)
+     
+ class Encoder(nn.Module):
+diff --git a/external/SUICA_pro/systems/embedder_fitting_system.py b/external/SUICA_pro/systems/embedder_fitting_system.py
+index 141b68d..8536e17 100755
+--- a/external/SUICA_pro/systems/embedder_fitting_system.py
++++ b/external/SUICA_pro/systems/embedder_fitting_system.py
+@@ -12,7 +12,8 @@ import importlib
+ import gc
+ from datasets import ST2D, GraphST2D, ST3D, GraphST3D
+ from networks import AE, GAE
+-from utils import metrics, plot_ST, construct_subgraph
++from utils import (metrics, plot_ST, construct_subgraph, construct_subgraph_cuda,
++                   construct_subgraph_cuda_edges, construct_subgraph_cuda_fast)
+ 
+ class ExtraVariableCallback(pl.Callback):
+     def __init__(self, extra_variable):
+@@ -75,24 +76,61 @@ class EmbedderFittingSystem(L.LightningModule):
+             extra_info = self.extra_variable
+             adj = extra_info["adj_train"]
+             raw_rep = extra_info["raw_rep_train"]
+-            neighbours = list(neighbors.cpu().numpy().flatten())
+-            idx_np = idx.cpu().numpy()
+-            # Ensure idx nodes are included in neighbourhoods
+-            neighbourhoods = list(set(neighbours) | set(idx_np))
+-            sub_set_y_raw, sub_set_adj,sub_set_idx = construct_subgraph(raw_rep, adj, neighbourhoods,idx_np)
++            if os.environ.get("UNIST_FAST_SUBGRAPH") == "1" and "e_row_start_train" in extra_info:
++                # 2026-08-30 GPU-0 acceleration (benchmark/METHOD_CHANGES.md):
++                # subgraph build fully on GPU — torch.unique sorted dedup instead
++                # of the Python set, CSR row-block candidate edges instead of the
++                # full-COO scan, reused local-map buffer, zero per-step .item()
++                # or D2H syncs. Same induced subgraph (same node set, same edge
++                # multiset, same per-source edge order -> scatter_add bitwise
++                # identical); node ORDER differs (graph isomorphism, registered
++                # permutation noise class).
++                sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda_fast(
++                    extra_info["raw_rep_train_cuda"],
++                    extra_info["adj_train_src"], extra_info["adj_train_dst"],
++                    extra_info["e_row_start_train"],
++                    idx, neighbors,
++                    extra_info["local_map_buf_train"])
++            else:
++                neighbours = list(neighbors.cpu().numpy().flatten())
++                idx_np = idx.cpu().numpy()
++                # Ensure idx nodes are included in neighbourhoods
++                neighbourhoods = list(set(neighbours) | set(idx_np))
++                if os.environ.get("UNIST_SPARSE_GCN") == "1" and "adj_train_src" in extra_info:
++                    # 2026-08-21 sparse-GCN campaign (benchmark/METHOD_CHANGES.md):
++                    # in-batch edge lists + scatter GCN instead of the dense [n,n]
++                    # adjacency + torch.mm. Same math (A/B loss rel diff 0.0e+00 at
++                    # float32; worst-case ~1e-7 registered noise class); ~1.9x faster
++                    # at the official 1M-spot scale.
++                    sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda_edges(
++                        extra_info["raw_rep_train_cuda"],
++                        extra_info["adj_train_src"], extra_info["adj_train_dst"],
++                        neighbourhoods, idx_np)
++                elif "adj_train_src" in extra_info:
++                    # GPU path (2026-08-20, benchmark/METHOD_CHANGES.md): bit-identical
++                    # subgraph tensors computed on GPU (falls back to the upstream path
++                    # below when the CUDA prep is absent).
++                    sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda(
++                        extra_info["raw_rep_train_cuda"],
++                        extra_info["adj_train_src"], extra_info["adj_train_dst"],
++                        neighbourhoods, idx_np)
++                else:
++                    sub_set_y_raw, sub_set_adj,sub_set_idx = construct_subgraph(raw_rep, adj, neighbourhoods,idx_np)
+             sub_set_y_raw = sub_set_y_raw.cuda().float() if not sub_set_y_raw.is_floating_point() else sub_set_y_raw.cuda()
+-            sub_set_adj = sub_set_adj.cuda()
++            sub_set_adj = sub_set_adj.cuda() if torch.is_tensor(sub_set_adj) else sub_set_adj
+             loss, _, _ = self.fitting_model.forward_loss(sub_set_y_raw,sub_set_adj,sub_set_idx)
+-            del adj
+-            del raw_rep
+-            gc.collect()
++            # audit 2026-08-14: removed the per-batch `del adj; del raw_rep;
++            # gc.collect()` (local no-ops — the dict keeps the arrays) and the
++            # per-batch `torch.cuda.empty_cache()` (pure memory-management calls).
++            # Computation-organization change only: identical loss math, identical
++            # gradients; ~3x faster at the official full-slice scale.
++            # Registered in benchmark/METHOD_CHANGES.md.
+         else:
+             y_raw = batch["raw_representations"]
+             # Ensure y_raw is float for loss computation
+             y_raw = y_raw.float() if not y_raw.is_floating_point() else y_raw
+             loss, _, _ = self.fitting_model.forward_loss(y_raw)
+         self.log("train/loss", loss, on_step=False, on_epoch=True)
+-        torch.cuda.empty_cache()
+         return loss
+ 
+     def validation_step(self, batch, batch_idx):
+@@ -101,13 +139,38 @@ class EmbedderFittingSystem(L.LightningModule):
+             extra_info = self.extra_variable
+             adj = extra_info["adj_val"]
+             raw_rep = extra_info["raw_rep_val"]
+-            neighbours = list(neighbors.cpu().numpy().flatten())
+-            idx_np = idx.cpu().numpy()
+-            # Ensure idx nodes are included in neighbourhoods
+-            neighbourhoods = list(set(neighbours) | set(idx_np))
+-            sub_set_y_raw, sub_set_adj,sub_set_idx = construct_subgraph(raw_rep, adj, neighbourhoods,idx_np)
++            if os.environ.get("UNIST_FAST_SUBGRAPH") == "1" and "e_row_start_val" in extra_info:
++                # 2026-08-30 GPU-0 acceleration (benchmark/METHOD_CHANGES.md):
++                # all-GPU subgraph build, same as the training fast path.
++                sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda_fast(
++                    extra_info["raw_rep_val_cuda"],
++                    extra_info["adj_val_src"], extra_info["adj_val_dst"],
++                    extra_info["e_row_start_val"],
++                    idx, neighbors,
++                    extra_info["local_map_buf_val"])
++            else:
++                neighbours = list(neighbors.cpu().numpy().flatten())
++                idx_np = idx.cpu().numpy()
++                # Ensure idx nodes are included in neighbourhoods
++                neighbourhoods = list(set(neighbours) | set(idx_np))
++                if os.environ.get("UNIST_SPARSE_GCN") == "1" and "adj_val_src" in extra_info:
++                    # 2026-08-21 sparse-GCN campaign (benchmark/METHOD_CHANGES.md):
++                    # same math via in-batch edge lists + scatter GCN.
++                    sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda_edges(
++                        extra_info["raw_rep_val_cuda"],
++                        extra_info["adj_val_src"], extra_info["adj_val_dst"],
++                        neighbourhoods, idx_np)
++                elif "adj_val_src" in extra_info:
++                    # GPU path (2026-08-20, benchmark/METHOD_CHANGES.md): bit-identical
++                    # subgraph tensors computed on GPU.
++                    sub_set_y_raw, sub_set_adj, sub_set_idx = construct_subgraph_cuda(
++                        extra_info["raw_rep_val_cuda"],
++                        extra_info["adj_val_src"], extra_info["adj_val_dst"],
++                        neighbourhoods, idx_np)
++                else:
++                    sub_set_y_raw, sub_set_adj,sub_set_idx = construct_subgraph(raw_rep, adj, neighbourhoods,idx_np)
+             sub_set_y_raw = sub_set_y_raw.cuda().float() if not sub_set_y_raw.is_floating_point() else sub_set_y_raw.cuda()
+-            sub_set_adj = sub_set_adj.cuda()
++            sub_set_adj = sub_set_adj.cuda() if torch.is_tensor(sub_set_adj) else sub_set_adj
+             loss, y_hat, _ = self.fitting_model.forward_loss(sub_set_y_raw,sub_set_adj,sub_set_idx)
+ 
+         else:
+@@ -377,6 +440,33 @@ def train_embedder(configs):
+         adj_val = adj_val.astype(np.float32)
+ 
+         extra_info = {"raw_rep":raw_rep,"adj": adj,"raw_rep_train": raw_rep_train, "adj_train":adj_train, "raw_rep_val":raw_rep_val, "adj_val":adj_val}
++        # GPU-acceleration campaign 2026-08-20 (registered in benchmark/METHOD_CHANGES.md):
++        # precompute CUDA copies of the full expression matrices and the COO edge lists of
++        # the full graphs; training/validation steps then build the per-batch dense
++        # sub-adjacency on GPU with construct_subgraph_cuda (bit-identical outputs).
++        def _csr_edges(adj_csr):
++            src = np.repeat(np.arange(adj_csr.shape[0]), np.diff(adj_csr.indptr))
++            return torch.tensor(src, dtype=torch.long), torch.tensor(adj_csr.indices, dtype=torch.long)
++        if torch.cuda.is_available():
++            extra_info["raw_rep_train_cuda"] = raw_rep_train.cuda()
++            extra_info["raw_rep_val_cuda"] = raw_rep_val.cuda()
++            s_tr, d_tr = _csr_edges(adj_train)
++            s_val, d_val = _csr_edges(adj_val)
++            extra_info["adj_train_src"], extra_info["adj_train_dst"] = s_tr.cuda(), d_tr.cuda()
++            extra_info["adj_val_src"], extra_info["adj_val_dst"] = s_val.cuda(), d_val.cuda()
++            # 2026-08-30 GPU-0 acceleration (benchmark/METHOD_CHANGES.md): CSR row
++            # pointers (indptr -> int64) and a reused -1-filled scratch buffer for
++            # the all-GPU subgraph build construct_subgraph_cuda_fast. The buffer
++            # is plain per-train/val scratch; per-step state lives inside the fast
++            # function.
++            extra_info["e_row_start_train"] = torch.tensor(adj_train.indptr, dtype=torch.long).cuda()
++            extra_info["e_row_start_val"] = torch.tensor(adj_val.indptr, dtype=torch.long).cuda()
++            extra_info["local_map_buf_train"] = torch.full(
++                (raw_rep_train.shape[0],), -1, dtype=torch.long,
++                device=extra_info["raw_rep_train_cuda"].device)
++            extra_info["local_map_buf_val"] = torch.full(
++                (raw_rep_val.shape[0],), -1, dtype=torch.long,
++                device=extra_info["raw_rep_val_cuda"].device)
+         pipeline_configs.embedder.dim_in = train_dataset.n_gene
+         extra_callback = ExtraVariableCallback(extra_variable=extra_info)
+         train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size, num_workers=18, drop_last=False)
+diff --git a/external/SUICA_pro/systems/inr_fitting_system.py b/external/SUICA_pro/systems/inr_fitting_system.py
+index c44e1c6..f9b4478 100755
+--- a/external/SUICA_pro/systems/inr_fitting_system.py
++++ b/external/SUICA_pro/systems/inr_fitting_system.py
+@@ -310,8 +310,13 @@ def train_inr(configs):
+                 callbacks=[checkpoint_callback],
+                 devices=1
+             )
+-    trainer.fit(fitting_system, train_dataloader, val_dataloader)
+-    
++    # 2026-08-21 math-neutral campaign addition (METHOD_CHANGES.md): optional
++    # continuation from a Lightning checkpoint. Config field
++    # pipeline.optimization.resume_from_checkpoint, absent -> original behavior.
++    resume_ckpt = pipeline_configs.optimization.get("resume_from_checkpoint", None)
++    trainer.fit(fitting_system, train_dataloader, val_dataloader,
++                ckpt_path=resume_ckpt)
++
+     del train_dataset
+     del train_dataloader
+     import gc
+diff --git a/external/SUICA_pro/utils.py b/external/SUICA_pro/utils.py
+index 09d8d13..862b370 100755
+--- a/external/SUICA_pro/utils.py
++++ b/external/SUICA_pro/utils.py
+@@ -22,6 +22,111 @@ def construct_subgraph(data, adj,neighbors,idx):
+     return sub_set_data, sub_set_adj,new_idx
+ 
+ 
++def construct_subgraph_cuda(data_cuda, edge_src, edge_dst, neighbors, idx):
++    """GPU twin of construct_subgraph (GPU-acceleration campaign 2026-08-20,
++    registered in benchmark/METHOD_CHANGES.md). Bit-identical outputs with GPU
++    gathers/scatter instead of scipy sparse slicing + toarray:
++      - data_cuda: full expression matrix on GPU (N, D) float32
++      - edge_src/edge_dst: COO edge lists of the FULL graph (long, GPU)
++      - neighbors: same python list as upstream (order preserved)
++      - idx: same idx_np numpy array as upstream
++    The dense sub-adjacency is filled with 1.0 at the graph's edges exactly like
++    scipy's connectivity toarray (accumulate=True mirrors scipy's duplicate-summing
++    semantics; the kneighbors connectivity graphs have no duplicates in practice).
++    """
++    neighbour_dict = {value: index for index, value in enumerate(neighbors)}
++    new_idx = [neighbour_dict[i] for i in idx]
++    nb_t = torch.tensor(neighbors, dtype=torch.long, device=data_cuda.device)
++    sub_set_data = data_cuda[nb_t]
++    n = len(neighbors)
++    local_map = torch.full((data_cuda.shape[0],), -1, dtype=torch.long, device=data_cuda.device)
++    local_map[nb_t] = torch.arange(n, device=data_cuda.device)
++    keep = (local_map[edge_src] >= 0) & (local_map[edge_dst] >= 0)
++    sub_set_adj = torch.zeros(n, n, dtype=data_cuda.dtype, device=data_cuda.device)
++    if keep.any():
++        sub_set_adj.index_put_(
++            (local_map[edge_src[keep]], local_map[edge_dst[keep]]),
++            torch.ones(int(keep.sum()), dtype=data_cuda.dtype, device=data_cuda.device),
++            accumulate=True)
++    return sub_set_data, sub_set_adj, new_idx
++
++
++def construct_subgraph_cuda_fast(data_cuda, edge_src, edge_dst, e_row_start,
++                                 idx_cuda, neighbors_cuda, local_map_buf):
++    """All-GPU fast subgraph construction for GAE training/validation steps
++    (2026-08-30, registered in benchmark/METHOD_CHANGES.md).
++
++    Produces the SAME induced subgraph as construct_subgraph_cuda_edges /
++    construct_subgraph_cuda (same node set, same edge multiset, same
++    per-source edge order -> scatter_add result bitwise identical) without:
++      - Python set/dict dedup of the neighbourhood (per-step D2H syncs)
++      - scanning all ~7M graph edges (only the CSR row blocks of the subgraph
++        nodes, ~n*k ~ 3e4 candidates)
++      - per-step allocation of the full-size local map (caller buffer reused)
++
++    Node ORDER differs (torch.unique sorted vs Python set hash order): a graph
++    isomorphism; content_graph_conv scatter_add and BatchNorm1d are
++    permutation-equivariant and the loss reads only batch-center rows, so the
++    loss is unchanged up to float32 reduction-order noise (registered class).
++
++    All inputs on GPU: data_cuda (N,D) float32; edge_src/edge_dst full COO
++    (E,) long; e_row_start = adj.indptr (N+1,) long; idx_cuda (B,);
++    neighbors_cuda (B,k); local_map_buf (N,) long pre-allocated (-1).
++
++    Returns (sub_set_data, (src_local, dst_local), idx_local) on GPU.
++    """
++    B = idx_cuda.numel()
++    merged = torch.cat([idx_cuda, neighbors_cuda.flatten()])
++    uniq, inv = torch.unique(merged, return_inverse=True)  # sorted dedup
++    idx_local = inv[:B]
++    n = uniq.numel()
++    sub_set_data = data_cuda[uniq]
++
++    # induced edges = CSR row blocks of the subgraph nodes (same multiset as
++    # the full-COO keep filter; per-source order identical to the COO).
++    # Subgraph nodes are scattered across the CSR -> the within-row offset must
++    # restart at 0 at each row block (a global arange offset would overshoot E).
++    starts = e_row_start[uniq]
++    lens = e_row_start[uniq + 1] - starts
++    base = starts.repeat_interleave(lens)               # no sync (metadata sizes)
++    blk_start = (torch.cumsum(lens, 0) - lens).repeat_interleave(lens)
++    cand = base + torch.arange(base.numel(), device=base.device) - blk_start
++    # edge sources are exactly the uniq nodes: local ids via repeat_interleave
++    src_local = torch.repeat_interleave(torch.arange(n, device=starts.device), lens)
++
++    buf = local_map_buf
++    buf.fill_(-1)
++    buf[uniq] = torch.arange(n, device=buf.device)
++    dst_local = buf[edge_dst[cand]]
++    keep = dst_local >= 0
++    src_local = src_local[keep]
++    dst_local = dst_local[keep]
++    return sub_set_data, (src_local, dst_local), idx_local
++
++
++def construct_subgraph_cuda_edges(data_cuda, edge_src, edge_dst, neighbors, idx):
++    """Sparse-edge twin of construct_subgraph_cuda (2026-08-21 sparse-GCN
++    campaign, registered in benchmark/METHOD_CHANGES.md). Same local-map and
++    edge-filtering math, but returns the in-batch edge lists (src_local,
++    dst_local) instead of the dense [n,n] adjacency. content_graph_conv then
++    computes adj @ x via y[src] += x[dst] (scatter_add), which is exactly
++    torch.mm(dense_adj, x) up to float accumulation order (~1e-7 relative,
++    registered accepted noise class). Measured ~1.9x faster per training step
++    at the official 1M-spot scale (A/B loss rel diff 0.0e+00 at float32).
++    """
++    neighbour_dict = {value: index for index, value in enumerate(neighbors)}
++    new_idx = [neighbour_dict[i] for i in idx]
++    nb_t = torch.tensor(neighbors, dtype=torch.long, device=data_cuda.device)
++    sub_set_data = data_cuda[nb_t]
++    n = len(neighbors)
++    local_map = torch.full((data_cuda.shape[0],), -1, dtype=torch.long, device=data_cuda.device)
++    local_map[nb_t] = torch.arange(n, device=data_cuda.device)
++    keep = (local_map[edge_src] >= 0) & (local_map[edge_dst] >= 0)
++    src_local = local_map[edge_src[keep]]
++    dst_local = local_map[edge_dst[keep]]
++    return sub_set_data, (src_local, dst_local), new_idx
++
++
+ def anisotropic_kneighbors_graph(coordinates, n_neighbors, z_weight=2.0, z_threshold=None, mode='connectivity', n_jobs=8, include_self=True):
+     """
+     Anisotropic KNN graph construction for 3D data with sparse z-direction.
+diff --git a/metrics/__init__.py b/metrics/__init__.py
+index d12f5ca..33015d3 100644
+--- a/metrics/__init__.py
++++ b/metrics/__init__.py
+@@ -22,7 +22,7 @@ from .voxel import (
+     false_positive_rate,
+     false_negative_rate,
+ )
+-from .evaluation import evaluate_slices, evaluate_volume, evaluate_volume_from_dirs
++from .evaluation import evaluate_slices, evaluate_volume
+ from .gene_expression import (
+     evaluate_gene_expression_2d,
+     evaluate_gene_expression_3d,
+@@ -53,7 +53,7 @@ __all__ = [
+     # Evaluation functions
+     'evaluate_slices',
+     'evaluate_volume',
+-    'evaluate_volume_from_dirs',
++    '',
+     # Gene expression evaluation
+     'evaluate_gene_expression_2d',
+     'evaluate_gene_expression_3d',

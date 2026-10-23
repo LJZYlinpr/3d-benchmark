@@ -5,7 +5,7 @@ isoST	805981c3fad66e3c9f5409816f95c17332906600	main	git	patches/isoST.patch	ddb7
 SINTER3D	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
 PASTE-OT-Linear	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
 ReHo	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
-NTF	f0b4941a07330d9749567ef52df8bc9f5cef976a	main	git	—	—	工作区无源码改动
+NTF	f0b4941a07330d9749567ef52df8bc9f5cef976a	main	git	patches/NTF_torch_fallback.patch	—	pure-PyTorch hash-grid fallback fixes
 DeepSpatial	fdb98657fca95679cc45adf3510a161de05bca08	main	git	—	—	工作区无源码改动
 Spa3D	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
 ASIGN	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点

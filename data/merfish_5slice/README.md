@@ -10,6 +10,7 @@ benchmark, split into five GitHub-friendly shards.
 | `observed_50um_S3.h5ad` | C57BL6J-3.008 | 25,287 | 24.7 MB |
 | `observed_50um_S4.h5ad` | C57BL6J-3.009 | 24,151 | 23.7 MB |
 | `observed_50um_S5.h5ad` | C57BL6J-3.010 | 23,273 | 22.2 MB |
+| `grid_50um.npz` | 50 µm query grid for full-volume methods (NTF/Spateo) | — | 36 KB |
 | **total** | | **122,669** | **~116 MiB (121 MB)** |
 
 Each shard is an AnnData with:

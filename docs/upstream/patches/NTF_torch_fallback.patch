@@ -1,0 +1,40 @@
+--- a/NTF/hash_grid_torch.py
++++ b/NTF/hash_grid_torch.py
+@@ -21,20 +21,20 @@
+         super(HashEmbedder, self).__init__()
+         assert n_input_dims == 3 and otype == "HashGrid"
+ 
+-        self.n_levels = n_levels
+-        self.n_features_per_level = n_features_per_level
+-        self.log2_hashmap_size = log2_hashmap_size
+-        self.base_resolution = base_resolution
++        self.n_levels = int(n_levels)
++        self.n_features_per_level = int(n_features_per_level)
++        self.log2_hashmap_size = int(log2_hashmap_size)
++        self.base_resolution = int(base_resolution)
+         self.b = per_level_scale
+ 
+         self.embeddings = nn.ModuleList(
+             [
+                 nn.Embedding(2**self.log2_hashmap_size, self.n_features_per_level)
+-                for _ in range(n_levels)
++                for _ in range(self.n_levels)
+             ]
+         )
+         # custom uniform initialization
+-        for i in range(n_levels):
++        for i in range(self.n_levels):
+             nn.init.uniform_(self.embeddings[i].weight, a=-0.0001, b=0.0001)
+ 
+         self.register_buffer(
+@@ -42,6 +42,10 @@
+             torch.tensor([[[i, j, k] for i in [0, 1] for j in [0, 1] for k in [0, 1]]]),
+         )
+ 
++    @property
++    def n_output_dims(self):
++        return self.n_levels * self.n_features_per_level
++
+     def trilinear_interp(
+         self,
+         x: torch.Tensor,

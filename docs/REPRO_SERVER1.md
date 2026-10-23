@@ -33,9 +33,8 @@ Fixed in the same change set:
 
 Still open:
 
-- NTF (`tinycudann`), Spateo (`spateo` package + upstream), UniST (1.1 GB
-  upstream + SUICA) and isoST (CUDA PyG extensions) need dedicated
-  environments/upstream code.
+- NTF/Spateo/UniST need dedicated environments/upstream code; isoST is
+  resolved (CUDA PyG + KeOps, peak 10.8 GB).
 - Exact per-method environment locks and upstream commits are not yet frozen.
 - SINTER3D's prediction keys and the stale status metadata are not fixed.
 
@@ -96,6 +95,7 @@ Target: 25,281 bins x 1,122 genes.
 | SpatialZ | DONE | 120.4 s | 1,712 MB | 0.497145 | 0.497124 | +0.000021 | 1.0000 |
 | SINTER3D | DONE | 554.0 s | not recorded | 0.024909 | 0.012095 | +0.012813 | 0.8750 |
 | DeepSpatial | DONE | 1,171.5 s | 9,908 MB | 0.347453 | 0.346893 | +0.000560 | 0.9993 |
+| isoST | DONE | 542.5 s | 10,814 MB | 0.073029 | 0.081210 | -0.008181 | 0.9822 |
 
 `module-mean gene PCC` is the mean over the 18 cell-type marker modules of the
 per-gene PCC median, i.e. the same definition as
@@ -103,8 +103,9 @@ per-gene PCC median, i.e. the same definition as
 shape, finite values, and `row_index` equality with the M1a target rows.
 
 Deterministic methods (ReHo, PASTE, SpatialZ) reproduce exactly. DeepSpatial is
-within 0.0006; Ours-EncMTP differs by 0.0044; SINTER3D differs by 0.0128 on a
-near-zero signal. The ordering of the six methods matches the HPC table.
+within 0.0006; Ours-EncMTP differs by 0.0044; isoST by 0.0082; SINTER3D by
+0.0128 on a near-zero signal. The ordering of the seven methods matches the HPC
+table.
 
 ## 3. Methods not run
 
@@ -113,10 +114,9 @@ near-zero signal. The ordering of the six methods matches the HPC table.
 | NTF | requires `tinycudann`; not available in the generic env |
 | Spateo | requires the `spateo` package and a 650 MB upstream tree; not installed |
 | UniST | 1.1 GB upstream + `SUICA_pro`; per-scenario scripts embed absolute paths |
-| isoST | requires CUDA-enabled `torch_cluster`; CPU wheel fails with `Not compiled with CUDA support`. After a CPU kNN patch it then requires `torch_sparse` (`'SparseTensor' requires 'torch-sparse'`) |
 
-All four are main/common-task methods. The current repository cannot reproduce
-them without upstream code and dedicated environments.
+All three are main/common-task methods. isoST is now runnable with the CUDA
+PyG wheels + KeOps setup documented in `docs/ENVIRONMENT_MERFISH5.md`.
 
 ## 4. Issues found
 
@@ -165,10 +165,10 @@ them without upstream code and dedicated environments.
    `src/methods/merfish/PASTE-OT-Linear/run_merfish5.py` by selecting the
    option from the torch major version; the legacy `run_paste_heart.py` keeps
    the old behaviour.
-9. **isoST needs CUDA PyG extensions.** `torch_cluster` was CPU-only; after
-   moving kNN to CPU it failed on `torch_sparse` in `GraphUNet`. A dedicated
-   env with CUDA `torch-scatter/sparse/cluster` matching the torch build is
-   required.
+9. **isoST needs CUDA PyG extensions and KeOps.** Fixed with torch 1.13.1,
+   CUDA `torch_scatter/sparse/cluster` wheels, a conda `cuda-nvcc=11.7`
+   toolkit, `pykeops 2.2.3`, and an explicit `CUDA_HOME`/`LD_LIBRARY_PATH`.
+   Peak 10.8 GB; run it alone on an 11 GB card.
 10. **SINTER3D prediction contract is incomplete.** Its npz contains
    `pred,row_index,bin_id,section,x,y` but omits `method,scenario,genes` that
    the other runners write. It also left `gpu_peak_mb` unset and kept a stale

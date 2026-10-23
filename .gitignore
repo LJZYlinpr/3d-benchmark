@@ -10,6 +10,7 @@ grids/
 !data/merfish_5slice/*.h5ad
 *.h5
 *.npz
+!data/merfish_5slice/grid_50um.npz
 *.log
 __pycache__/
 *.py[cod]
