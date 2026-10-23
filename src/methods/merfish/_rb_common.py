@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path("/storage/yuhongtaoLab/linpeiran/projects/3d_benchmark/Workspace/merfish_test/missing_combos_50um/all_methods")
+ROOT = Path(os.environ.get("MERFISH5_ROOT", Path.cwd())).resolve()
 CANON = ROOT / "canonical"
 PRED_ROOT = ROOT / "predictions"
 METHODS_ROOT = ROOT / "methods"

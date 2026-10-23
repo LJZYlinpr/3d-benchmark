@@ -58,6 +58,9 @@ def read_shards(shards_dir: Path) -> list[ad.AnnData]:
 def merge(shards: list[ad.AnnData]) -> ad.AnnData:
     X = vstack([s.X for s in shards], format="csr").astype(np.float32)
     obs = pd.concat([s.obs for s in shards], axis=0)
+    # The shards store the bin id as the obs index.  The canonical builder and
+    # the legacy observed file also expect an explicit `bin_id` column.
+    obs.insert(0, "bin_id", np.asarray(obs.index.astype(str)))
     var = shards[0].var.copy()
     obsm = {"X_aligned": np.vstack([np.asarray(s.obsm["X_aligned"]) for s in shards])}
     uns = {k: v for k, v in shards[0].uns.items() if k not in SHARD_ONLY_UNS}

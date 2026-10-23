@@ -53,6 +53,13 @@ Method runners live in `src/methods/merfish/<method>/`. Run each method on the
 canonical scenario directory; keep target-only outputs under
 `predictions/<scenario>/<method>.npz`.
 
+For a one-scenario smoke test on a new machine, see
+`docs/ENVIRONMENT_MERFISH5.md` and `scripts/run_merfish5_small.sh`. The wrapper
+runs ReHo, Ours-EncMTP, PASTE-OT-Linear, SpatialZ, SINTER3D and DeepSpatial
+with the frozen budgets. NTF, Spateo, UniST and isoST require additional
+upstream code or CUDA PyG extensions; see `docs/REPRO_SERVER1.md` for the exact
+blockers.
+
 The historical final table can be regenerated with:
 
 ```bash

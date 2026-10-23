@@ -40,7 +40,9 @@ python scripts/build_observed_50um.py \
 
 The shards keep only the fields the benchmark uses (`slice`, `x_mm`, `y_mm`,
 `z_mm`, `n_cells`, `ix`, `iy`, `iz`, `celltype`, `domain`,
-`obsm['X_aligned']`, gene names). The rebuild is value-identical in `X` and
+`obsm['X_aligned']`, gene names). `bin_id` is the shard `obs` index; the merge
+script materialises it as an explicit `obs['bin_id']` column because the
+canonical builder reads it. The rebuild is value-identical in `X` and
 coordinates to the full HPC `observed_50um.h5ad`. The 2.9 GB cell-level file
 `ABCA-3_slices_006-010.h5ad` is **not** read by the benchmark and is not
 committed; it can be obtained from ABC Atlas (`Zhuang-ABCA-3`, CC BY 4.0).

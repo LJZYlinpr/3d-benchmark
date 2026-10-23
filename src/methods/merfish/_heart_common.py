@@ -25,7 +25,7 @@ import time
 
 import numpy as np
 
-ROOT = "/storage/yuhongtaoLab/linpeiran/projects/3d_benchmark/Workspace/merfish_test/missing_combos_50um/all_methods"
+ROOT = os.environ.get("MERFISH5_ROOT", os.getcwd())
 CANON = os.path.join(ROOT, "canonical")
 PRED_ROOT = os.path.join(ROOT, "predictions")
 METHODS_ROOT = os.path.join(ROOT, "methods")

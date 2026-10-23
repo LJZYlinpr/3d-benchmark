@@ -16,7 +16,8 @@ Each shard is an AnnData with:
 
 ```text
 X                 (n_bins, 1122) float32 CSR, mean expression per 50 µm bin
-obs               slice, x_mm, y_mm, z_mm, n_cells, ix, iy, iz, celltype, domain
+obs               bin_id (obs index; added as a column by the merge script),
+                  slice, x_mm, y_mm, z_mm, n_cells, ix, iy, iz, celltype, domain
 obsm['X_aligned'] (n_bins, 3) float32, aligned CCF xyz in mm
 var['gene_name']  1122 genes
 uns               bin_size_um=50, grid_nx, grid_ny, grid_x0, grid_y0
@@ -39,7 +40,8 @@ file is below both the 100 MB hard limit and the 50 MB warning threshold.
 
 The shards are **lossless**: the rebuild check reports
 `max_abs_X_diff = 0.0` and `max_abs_X_aligned_diff = 0.0` against the full HPC
-copy.
+copy.  `bin_id` is the shard `obs` index; the merge script materialises it as
+an explicit `obs['bin_id']` column because the canonical builder reads it.
 
 ## Rebuild the single input file
 

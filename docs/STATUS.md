@@ -37,6 +37,17 @@
 - SINTER3D is effectively unsupported on So3D module structure.
 - UniST has severe gene coverage/variance collapse.
 
+## Server 1 reproduction (2026-10-23)
+
+- Rebuilt the MERFISH 5-slice input from the committed shards on `aicb1`;
+  canonical `bins_all` X and `target_gt` hashes match the HPC originals.
+- Ran six methods on held-out M1a: ReHo, Ours-EncMTP, PASTE-OT-Linear,
+  SpatialZ, SINTER3D, DeepSpatial. Deterministic methods reproduce exactly;
+  learned methods differ by <=0.005 module-mean gene PCC (SINTER3D 0.013 on a
+  near-zero signal).
+- NTF, Spateo, UniST and isoST are blocked by missing upstream code or CUDA
+  PyG extensions. Full issue list and commands: `docs/REPRO_SERVER1.md`.
+
 ## Release blockers
 
 See `docs/BASELINE_AUDIT.md`.

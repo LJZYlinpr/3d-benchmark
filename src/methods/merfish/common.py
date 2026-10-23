@@ -23,7 +23,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path("/storage/yuhongtaoLab/linpeiran/projects/3d_benchmark/Workspace/merfish_test/missing_combos_50um/all_methods")
+ROOT = Path(os.environ.get("MERFISH5_ROOT", Path.cwd())).resolve()
 CANON = ROOT / "canonical"
 BINS_H5 = CANON / "bins_all.h5ad"
 SCENARIOS_JSON = CANON / "scenarios.json"
