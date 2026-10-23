@@ -1,6 +1,6 @@
 # 3D Spatial Transcriptomics Reconstruction Benchmark
 
-**Version:** v0.1.0-draft  
+**Version: **v0.1.1-draft**  
 **Repository:** https://github.com/LJZYlinpr/3d-benchmark  
 **Status:** internal first-version package; scientific results still need the baseline fixes listed in `docs/BASELINE_AUDIT.md`.
 
@@ -74,6 +74,7 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
   README.md
   configs/                  protocol, resolutions, dataset configs
   docs/                     data, methods, metrics, environment, reproduction
+  docs/methods/             per-method/per-baseline reproduction notes
   envs/                     conda env exports (from-history; not full lockfiles)
   manifests/                dataset/scenario/module manifests (no raw data)
   results/                  small summary tables, no predictions/volumes
@@ -133,6 +134,7 @@ grid_{10,20,40,100}um.npz
 ### 3. Follow a reproduction track
 
 - `docs/REPRODUCE.md` — MERFISH 5-slice, heart and So3D commands.
+- `docs/methods/index.md` — per-method reproduction documents.
 - `docs/METRICS.md` — new metric definitions.
 - `docs/METHODS.md` — method code and known deviations.
 - `docs/DATA.md` — input formats and data locations.

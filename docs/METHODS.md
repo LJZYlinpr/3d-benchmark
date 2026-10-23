@@ -1,5 +1,7 @@
 # Methods
 
+Per-method reproduction notes: [methods/index.md](methods/index.md).
+
 ## Counts
 
 - **8 paper common-task methods**: SINTER3D, UniST, isoST, SpatialZ, NTF,
