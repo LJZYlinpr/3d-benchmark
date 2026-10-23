@@ -1,0 +1,566 @@
+{
+  "source_bins": "canonical/bins_all.h5ad",
+  "sections_available": [
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30"
+  ],
+  "design": "contiguous hidden blocks of k=1..4 sections; visible slices on both sides; hidden slices are never in the visible list; 26 scenarios / 60 target slices",
+  "n_scenarios": 26,
+  "n_target_slices": 60,
+  "scenarios": [
+    {
+      "name": "k1_s22",
+      "k": 1,
+      "visible": [
+        "21",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "22"
+      ],
+      "left_visible": "21",
+      "right_visible": "23",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s23",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "23"
+      ],
+      "left_visible": "22",
+      "right_visible": "24",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s24",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "24"
+      ],
+      "left_visible": "23",
+      "right_visible": "25",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s25",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "25"
+      ],
+      "left_visible": "24",
+      "right_visible": "26",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s26",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "26"
+      ],
+      "left_visible": "25",
+      "right_visible": "27",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s27",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "27"
+      ],
+      "left_visible": "26",
+      "right_visible": "28",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s28",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "29",
+        "30"
+      ],
+      "target": [
+        "28"
+      ],
+      "left_visible": "27",
+      "right_visible": "29",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k1_s29",
+      "k": 1,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "30"
+      ],
+      "target": [
+        "29"
+      ],
+      "left_visible": "28",
+      "right_visible": "30",
+      "n_target_sections": 1
+    },
+    {
+      "name": "k2_s22-23",
+      "k": 2,
+      "visible": [
+        "21",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "22",
+        "23"
+      ],
+      "left_visible": "21",
+      "right_visible": "24",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s23-24",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "23",
+        "24"
+      ],
+      "left_visible": "22",
+      "right_visible": "25",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s24-25",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "24",
+        "25"
+      ],
+      "left_visible": "23",
+      "right_visible": "26",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s25-26",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "25",
+        "26"
+      ],
+      "left_visible": "24",
+      "right_visible": "27",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s26-27",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "26",
+        "27"
+      ],
+      "left_visible": "25",
+      "right_visible": "28",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s27-28",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "29",
+        "30"
+      ],
+      "target": [
+        "27",
+        "28"
+      ],
+      "left_visible": "26",
+      "right_visible": "29",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k2_s28-29",
+      "k": 2,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "30"
+      ],
+      "target": [
+        "28",
+        "29"
+      ],
+      "left_visible": "27",
+      "right_visible": "30",
+      "n_target_sections": 2
+    },
+    {
+      "name": "k3_s22-24",
+      "k": 3,
+      "visible": [
+        "21",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "22",
+        "23",
+        "24"
+      ],
+      "left_visible": "21",
+      "right_visible": "25",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k3_s23-25",
+      "k": 3,
+      "visible": [
+        "21",
+        "22",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "23",
+        "24",
+        "25"
+      ],
+      "left_visible": "22",
+      "right_visible": "26",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k3_s24-26",
+      "k": 3,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "24",
+        "25",
+        "26"
+      ],
+      "left_visible": "23",
+      "right_visible": "27",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k3_s25-27",
+      "k": 3,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "25",
+        "26",
+        "27"
+      ],
+      "left_visible": "24",
+      "right_visible": "28",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k3_s26-28",
+      "k": 3,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "29",
+        "30"
+      ],
+      "target": [
+        "26",
+        "27",
+        "28"
+      ],
+      "left_visible": "25",
+      "right_visible": "29",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k3_s27-29",
+      "k": 3,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "30"
+      ],
+      "target": [
+        "27",
+        "28",
+        "29"
+      ],
+      "left_visible": "26",
+      "right_visible": "30",
+      "n_target_sections": 3
+    },
+    {
+      "name": "k4_s22-25",
+      "k": 4,
+      "visible": [
+        "21",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "22",
+        "23",
+        "24",
+        "25"
+      ],
+      "left_visible": "21",
+      "right_visible": "26",
+      "n_target_sections": 4
+    },
+    {
+      "name": "k4_s23-26",
+      "k": 4,
+      "visible": [
+        "21",
+        "22",
+        "27",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "23",
+        "24",
+        "25",
+        "26"
+      ],
+      "left_visible": "22",
+      "right_visible": "27",
+      "n_target_sections": 4
+    },
+    {
+      "name": "k4_s24-27",
+      "k": 4,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "28",
+        "29",
+        "30"
+      ],
+      "target": [
+        "24",
+        "25",
+        "26",
+        "27"
+      ],
+      "left_visible": "23",
+      "right_visible": "28",
+      "n_target_sections": 4
+    },
+    {
+      "name": "k4_s25-28",
+      "k": 4,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "29",
+        "30"
+      ],
+      "target": [
+        "25",
+        "26",
+        "27",
+        "28"
+      ],
+      "left_visible": "24",
+      "right_visible": "29",
+      "n_target_sections": 4
+    },
+    {
+      "name": "k4_s26-29",
+      "k": 4,
+      "visible": [
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "30"
+      ],
+      "target": [
+        "26",
+        "27",
+        "28",
+        "29"
+      ],
+      "left_visible": "25",
+      "right_visible": "30",
+      "n_target_sections": 4
+    }
+  ]
+}

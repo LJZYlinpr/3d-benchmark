@@ -1,0 +1,8 @@
+name: spateo
+channels:
+  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.ustc.edu.cn/anaconda/cloud/nvidia/
+  - defaults
+dependencies:
+  - python=3.11
+prefix: /storage/yuhongtaoLab/linpeiran/env/miniconda/envs/spateo

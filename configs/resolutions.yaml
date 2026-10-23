@@ -1,0 +1,9 @@
+# v1 grid policy: 10, 20, 40, 100 micrometres.
+# The historical 50 um grid is legacy and is not part of the v1 grid policy.
+resolutions_um: [10, 20, 40, 100]
+grid_schema:
+  centers: [x_centers, y_centers, z_centers]
+  masks: [obs_mask, query_mask, inside, query_near5]
+  metadata: [x0, y0, z0, bs, nx, ny, nz]
+coordinate_unit: mm
+near_bins: 5

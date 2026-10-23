@@ -1,0 +1,10 @@
+dataset: so3d_ge5
+datasets: 46
+spots: 901284
+slices_per_dataset: 5-74
+genes_per_dataset: 2000-4000
+held_out_rule: interior middle slice per dataset
+methods: [SINTER3D, UniST, isoST, SpatialZ, PASTE-OT-Linear, ReHo, NTF, DeepSpatial]
+resolutions_um: [10, 20, 40, 100]
+legacy_resolution_um: 50
+manifest: manifests/so3d_46_manifest.tsv

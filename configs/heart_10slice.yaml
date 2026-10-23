@@ -1,0 +1,11 @@
+dataset: heart_10slice
+species: human
+genes: 238
+slices: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+scenarios: 26
+scenario_rule: contiguous hidden block k=1..4, both sides visible, no edge target
+methods:
+  [ReHo, Ours-EncMTP, PASTE-OT-Linear, SpatialZ, Spateo, NTF,
+   SINTER3D, isoST, DeepSpatial, UniST]
+resolutions_um: [10, 20, 40, 100]
+legacy_resolution_um: 50

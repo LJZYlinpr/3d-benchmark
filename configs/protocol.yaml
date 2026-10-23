@@ -1,0 +1,44 @@
+# Protocol
+
+## Task
+
+Fixed-coordinate held-out expression prediction.
+
+## Allowed
+
+- all visible-section expression;
+- visible-section coordinates/time/slice order;
+- target cell/bin coordinates;
+- dataset metadata that is independent of target expression.
+
+## Forbidden
+
+- target expression in fitting, calibration, normalization, feature selection,
+  module definition, thresholding, checkpoint selection, or hyperparameter
+  selection;
+- target-derived masks or cell counts used as model inputs;
+- saving a dense 3D volume as the benchmark output;
+- silently replacing failures with zeros or copied predictions.
+
+## Output contract
+
+For each dataset and method:
+
+```text
+predictions/<dataset>/<method>.npz
+  pred or X  float32 [n_target, n_genes]
+  obs_names
+  coords
+  slice
+  row_index
+```
+
+Rows must align one-to-one with `canonical/<dataset>/target.npz`.
+
+## Reporting
+
+- no single composite score;
+- report expression, module, spatial and structure metrics separately;
+- report N/A with reasons;
+- report visible-only thresholds/modules and target support;
+- report per-dataset and macro results, not only pooled means.

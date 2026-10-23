@@ -1,0 +1,11 @@
+name: deepspatial
+channels:
+  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.ustc.edu.cn/anaconda/cloud/nvidia/
+  - defaults
+dependencies:
+  - pip
+  - python=3.12
+  - setuptools
+  - wheel
+prefix: /storage/yuhongtaoLab/linpeiran/env/miniconda/envs/deepspatial

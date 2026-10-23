@@ -1,0 +1,10 @@
+name: benchmark
+channels:
+  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.ustc.edu.cn/anaconda/cloud/nvidia/
+  - defaults
+dependencies:
+  - wheel
+  - pip
+  - python=3.10
+prefix: /storage/yuhongtaoLab/linpeiran/env/miniconda/envs/benchmark

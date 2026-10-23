@@ -1,0 +1,240 @@
+{
+  "dataset": "/storage/yuhongtaoLab/linpeiran/projects/3d_benchmark/Workspace/merfish_test/observed_50um.h5ad",
+  "voxel_um": 50,
+  "n_total_observed": 122669,
+  "n_genes": 1122,
+  "slice_order": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5"
+  ],
+  "slice_ids": {
+    "S1": "C57BL6J-3.006",
+    "S2": "C57BL6J-3.007",
+    "S3": "C57BL6J-3.008",
+    "S4": "C57BL6J-3.009",
+    "S5": "C57BL6J-3.010"
+  },
+  "protocol": "train only on observed bins of `visible` slices; target coordinates are the observed 50um bins of `missing` slices; target expression is used for scoring only",
+  "combos": {
+    "M1a": {
+      "missing": [
+        "S2"
+      ],
+      "visible": [
+        "S1",
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.007"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.008",
+        "C57BL6J-3.009",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 25281,
+      "n_visible": 97388,
+      "n_target_per_slice": {
+        "C57BL6J-3.007": 25281
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.008": 25287,
+        "C57BL6J-3.009": 24151,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M1b": {
+      "missing": [
+        "S3"
+      ],
+      "visible": [
+        "S1",
+        "S2",
+        "S4",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.008"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.007",
+        "C57BL6J-3.009",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 25287,
+      "n_visible": 97382,
+      "n_target_per_slice": {
+        "C57BL6J-3.008": 25287
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.009": 24151,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M1c": {
+      "missing": [
+        "S4"
+      ],
+      "visible": [
+        "S1",
+        "S2",
+        "S3",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.009"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.007",
+        "C57BL6J-3.008",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 24151,
+      "n_visible": 98518,
+      "n_target_per_slice": {
+        "C57BL6J-3.009": 24151
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.008": 25287,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M2a": {
+      "missing": [
+        "S2",
+        "S3"
+      ],
+      "visible": [
+        "S1",
+        "S4",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.007",
+        "C57BL6J-3.008"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.009",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 50568,
+      "n_visible": 72101,
+      "n_target_per_slice": {
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.008": 25287
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.009": 24151,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M2b": {
+      "missing": [
+        "S2",
+        "S4"
+      ],
+      "visible": [
+        "S1",
+        "S3",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.007",
+        "C57BL6J-3.009"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.008",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 49432,
+      "n_visible": 73237,
+      "n_target_per_slice": {
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.009": 24151
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.008": 25287,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M2c": {
+      "missing": [
+        "S3",
+        "S4"
+      ],
+      "visible": [
+        "S1",
+        "S2",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.008",
+        "C57BL6J-3.009"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.007",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 49438,
+      "n_visible": 73231,
+      "n_target_per_slice": {
+        "C57BL6J-3.008": 25287,
+        "C57BL6J-3.009": 24151
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.010": 23273
+      }
+    },
+    "M3a": {
+      "missing": [
+        "S2",
+        "S3",
+        "S4"
+      ],
+      "visible": [
+        "S1",
+        "S5"
+      ],
+      "missing_slice_ids": [
+        "C57BL6J-3.007",
+        "C57BL6J-3.008",
+        "C57BL6J-3.009"
+      ],
+      "visible_slice_ids": [
+        "C57BL6J-3.006",
+        "C57BL6J-3.010"
+      ],
+      "n_target": 74719,
+      "n_visible": 47950,
+      "n_target_per_slice": {
+        "C57BL6J-3.007": 25281,
+        "C57BL6J-3.008": 25287,
+        "C57BL6J-3.009": 24151
+      },
+      "n_visible_per_slice": {
+        "C57BL6J-3.006": 24677,
+        "C57BL6J-3.010": 23273
+      }
+    }
+  }
+}

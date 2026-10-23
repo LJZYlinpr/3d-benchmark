@@ -1,0 +1,17 @@
+dataset: merfish_abca3_5slice
+species: mouse
+genes: 1122
+slices: [".006", ".007", ".008", ".009", ".010"]
+scenarios:
+  - {name: M1a, visible: [".006", ".008", ".009", ".010"], target: [".007"]}
+  - {name: M1b, visible: [".006", ".007", ".009", ".010"], target: [".008"]}
+  - {name: M1c, visible: [".006", ".007", ".008", ".010"], target: [".009"]}
+  - {name: M2a, visible: [".006", ".009", ".010"], target: [".007", ".008"]}
+  - {name: M2b, visible: [".006", ".008", ".010"], target: [".007", ".009"]}
+  - {name: M2c, visible: [".006", ".007", ".010"], target: [".008", ".009"]}
+  - {name: M3a, visible: [".006", ".010"], target: [".007", ".008", ".009"]}
+methods_common:
+  [SINTER3D, UniST, isoST, SpatialZ, NTF, DeepSpatial, PASTE-OT-Linear, ReHo]
+methods_extra: [Ours-EncMTP, Spateo]
+resolutions_um: [10, 20, 40, 100]
+legacy_resolution_um: 50

@@ -1,0 +1,11 @@
+name: isoST
+channels:
+  - https://mirrors.ustc.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.ustc.edu.cn/anaconda/cloud/nvidia/
+  - defaults
+dependencies:
+  - setuptools
+  - pip
+  - python=3.10
+  - wheel
+prefix: /storage/yuhongtaoLab/linpeiran/env/miniconda/envs/isoST
