@@ -224,3 +224,29 @@ Already covered above: use an `omicverse` venv with `timm`, `torchdiffeq`,
   but they contend for the single GPU; the timings above are concurrent.
 - SINTER3D's prediction contract omits `method`, `scenario`, `genes`; validate
   before use.
+
+
+## Ada / RTX 4090 (sm_89) profile
+
+The default `setup_merfish5_env.sh` targets torch 1.13.1+cu117 (Turing/Ampere).
+RTX 4090/4090D is sm_89 and needs a CUDA 12 build.  Use:
+
+```bash
+MERFISH5_PROFILE=ada bash scripts/setup_merfish5_env_ada.sh
+source "$MERFISH5_ROOT/env.sh"
+```
+
+Tested stack on `main` (8x RTX 4090D, 384 CPU, 1.5 TB RAM, driver 595):
+
+```text
+common: torch 2.3.1+cu121, torch_geometric 2.3.1,
+        torch_scatter/sparse/cluster (torch-2.3.0+cu121),
+        pykeops 2.2.3, CUDA_HOME=/usr/local/cuda-12.1
+omni:   torch 2.6.0+cu124, torchvision 0.21.0+cu124,
+        lightning/timm/torchdiffeq/pot (DeepSpatial/UniST)
+```
+
+The Ada script uses `virtualenv` when `python -m venv` has no ensurepip, and
+downloads torch wheels from a mirror if `download.pytorch.org` is unreachable.
+It writes `work/env.sh` with `PY_COMMON`, `PY_DEEPSPATIAL`, `PY_UNIST` and
+`CUDA_HOME`; the same wrapper is used.

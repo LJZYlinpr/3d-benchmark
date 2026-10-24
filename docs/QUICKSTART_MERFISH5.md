@@ -21,6 +21,15 @@ bash scripts/setup_merfish5_env.sh
 source "$MERFISH5_ROOT/env.sh"
 ```
 
+**RTX 4090 / Ada (sm_89) or a host without conda/ensurepip:** use the Ada
+profile instead. It uses torch 2.3.1+cu121, CUDA 12.1 PyG wheels and the system
+`/usr/local/cuda-12.1` toolkit, and creates `venv_ada` + `venv_omni`:
+
+```bash
+MERFISH5_PROFILE=ada bash scripts/setup_merfish5_env_ada.sh
+source "$MERFISH5_ROOT/env.sh"
+```
+
 This creates:
 
 ```text
