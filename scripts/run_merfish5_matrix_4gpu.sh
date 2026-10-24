@@ -61,7 +61,7 @@ fail=0
 for s in "${SCENARIOS[@]}"; do
   "$PY_COMMON" scripts/validate_predictions.py \
     --canonical "$WORK/canonical" --predictions "$WORK/predictions/$s" \
-    > "$LOGS/validate_$s.log" 2>&1 || fail=1
+    --scenario "$s" > "$LOGS/validate_$s.log" 2>&1 || fail=1
   tail -1 "$LOGS/validate_$s.log" | tee -a "$LOGS/run.log"
 done
 [ "$fail" = 0 ] && echo "[matrix] all prediction contracts pass" || echo "[matrix] failures; see $LOGS"

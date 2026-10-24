@@ -82,7 +82,9 @@ data.  The full matrix was launched from the isolated main checkout on GPUs
 
 ## Full matrix
 
-Started 2026-10-24 11:14 after the M1a pilot.  Proposed four-GPU schedule:
+Completed 2026-10-24 13:16 (about 2 h 02 min) on four GPUs.  All 70
+method-combo predictions pass the contract; the detailed metrics and HPC
+comparison are in `docs/REPRO_MAIN_MATRIX.md`.  Schedule used:
 
 ```text
 GPU0: UniST x 7
