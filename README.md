@@ -115,8 +115,10 @@ is optional for release-asset consumers and verifies the SHA-256.
 ## Quick start
 
 For the tested fresh-clone path see
-[`docs/QUICKSTART_MERFISH5.md`](docs/QUICKSTART_MERFISH5.md).  The complete
-one-command run is:
+[`docs/QUICKSTART_MERFISH5.md`](docs/QUICKSTART_MERFISH5.md).  Run
+`bash scripts/preflight_merfish5.sh` first, and use
+[`docs/AI_REPRODUCTION_RUNBOOK.md`](docs/AI_REPRODUCTION_RUNBOOK.md) for
+environment/method failures.  The complete one-command run is:
 
 ```bash
 bash scripts/setup_merfish5_env.sh

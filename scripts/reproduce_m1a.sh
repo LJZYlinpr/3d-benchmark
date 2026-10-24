@@ -59,7 +59,11 @@ if [ ${#METHODS[@]} -eq 0 ]; then
 fi
 
 echo "== run ${#METHODS[@]} methods on $MERFISH5_SCENARIO =="
-bash "$REPO/scripts/run_merfish5_small.sh" "${METHODS[@]}"
+RUN_FAILED=0
+if ! bash "$REPO/scripts/run_merfish5_small.sh" "${METHODS[@]}"; then
+  RUN_FAILED=1
+  echo "[warn] one or more methods failed; continuing with the surviving predictions" >&2
+fi
 
 echo "== validate predictions =="
 "$PY_METRIC" "$REPO/scripts/validate_predictions.py" \
@@ -77,12 +81,12 @@ echo "== expression metrics =="
 if [ "${PILOT:-0}" = "1" ]; then
   echo "[pilot] skipping strict metric validation"
   echo "[done] predictions: $MERFISH5_ROOT/predictions/$MERFISH5_SCENARIO"
-  exit 0
+  exit "$RUN_FAILED"
 fi
-if [ ${#METHODS[@]} -eq 10 ]; then
-  SUBSET=""
-else
+if [ "$RUN_FAILED" = "1" ] || [ ${#METHODS[@]} -ne 10 ]; then
   SUBSET="--allow-subset"
+else
+  SUBSET=""
 fi
 "$PY_METRIC" "$REPO/scripts/validate_reproduction.py" \
   --repo "$REPO" \
@@ -91,3 +95,7 @@ fi
   $SUBSET
 
 echo "[done] predictions: $MERFISH5_ROOT/predictions/$MERFISH5_SCENARIO"
+if [ "$RUN_FAILED" = "1" ]; then
+  echo "[warn] some methods failed; inspect their logs under $MERFISH5_ROOT/methods/<method>/" >&2
+  exit 1
+fi

@@ -11,6 +11,7 @@ required. Only the Python environments are installed from the network.
 git clone https://github.com/LJZYlinpr/3d-benchmark.git
 cd 3d-benchmark
 export MERFISH5_ROOT="$PWD/work"
+bash scripts/preflight_merfish5.sh
 ```
 
 Requirements: Linux x86_64, an NVIDIA GPU, Python 3.9/3.10 (common profile) or
@@ -119,6 +120,11 @@ docs/                      environment, data, methods, metrics, provenance
 licenses. `docs/THIRD_PARTY.md` records attribution and modifications.
 
 ## 6. Troubleshooting
+
+First run `scripts/preflight_merfish5.sh`; then read
+[`docs/AI_REPRODUCTION_RUNBOOK.md`](AI_REPRODUCTION_RUNBOOK.md) for the full
+symptom → cause → action table (Python/CUDA, PyG wheels, OOM, partial runs,
+validation semantics).
 
 - If `data.pyg.org` is blocked, the common setup prints the three required CUDA
   wheel names; download them elsewhere and install with `pip install --no-deps`.
