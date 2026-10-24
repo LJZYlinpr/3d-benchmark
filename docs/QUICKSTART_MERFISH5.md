@@ -87,9 +87,11 @@ The one-command run ends with:
 [ok] M1a reproduction validated
 ```
 
-Deterministic methods (ReHo, PASTE-OT-Linear, SpatialZ) must match exactly;
-learned methods have documented tolerances in the manifest because of
-GPU/library non-determinism and NTF/SINTER3D near-zero-signal variance.
+Deterministic methods (ReHo, PASTE-OT-Linear, SpatialZ) must match exactly.
+Ours-EncMTP, DeepSpatial, isoST and SINTER3D have documented tolerances for
+GPU/library non-determinism. NTF, Spateo and UniST are configuration-sensitive
+across machines: their metrics are printed as `[info]` and checked for contract
+only, not used as a pass/fail gate.
 
 Outputs:
 

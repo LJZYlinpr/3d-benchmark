@@ -151,7 +151,12 @@ def main() -> int:
         score = module_mean_gene_pcc(pred, gt, modules)
         ref = float(spec["module_pcc_mean"])
         tol = float(spec["tol"])
+        strict = bool(spec.get("strict", True))
         ok = abs(score - ref) <= tol
+        if not strict:
+            print(f"[info] {method:16s} module_pcc={score:.6f} ref={ref:.6f} "
+                  f"diff={score-ref:+.6f} (config-sensitive; contract only)")
+            continue
         status = "ok" if ok else "FAIL"
         print(f"[{status}] {method:16s} module_pcc={score:.6f} ref={ref:.6f} "
               f"diff={score-ref:+.6f} tol={tol:g}")

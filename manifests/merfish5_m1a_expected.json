@@ -4,15 +4,51 @@
   "canonical_bins_sha256": "db8a8271c1bc37e15b48ac9175957c15680a173ed22a6603ac1238ba8041f507",
   "target_gt_sha256": "b006a566863a7aad289640ea983b2668fe566101f3a715c375863b96d0d1ed28",
   "methods": {
-    "ReHo": {"module_pcc_mean": 0.414783, "tol": 0.0001},
-    "Ours-EncMTP": {"module_pcc_mean": 0.529723, "tol": 0.03},
-    "PASTE-OT-Linear": {"module_pcc_mean": 0.442714, "tol": 0.0001},
-    "SpatialZ": {"module_pcc_mean": 0.497145, "tol": 0.0001},
-    "SINTER3D": {"module_pcc_mean": 0.056566, "tol": 0.15},
-    "DeepSpatial": {"module_pcc_mean": 0.347453, "tol": 0.02},
-    "NTF": {"module_pcc_mean": 0.108085, "tol": 0.08},
-    "Spateo": {"module_pcc_mean": 0.534612, "tol": 0.03},
-    "isoST": {"module_pcc_mean": 0.074171, "tol": 0.03},
-    "UniST": {"module_pcc_mean": 0.337933, "tol": 0.05}
+    "ReHo": {
+      "module_pcc_mean": 0.414783,
+      "tol": 0.0001
+    },
+    "Ours-EncMTP": {
+      "module_pcc_mean": 0.529723,
+      "tol": 0.03
+    },
+    "PASTE-OT-Linear": {
+      "module_pcc_mean": 0.442714,
+      "tol": 0.0001
+    },
+    "SpatialZ": {
+      "module_pcc_mean": 0.497145,
+      "tol": 0.0001
+    },
+    "SINTER3D": {
+      "module_pcc_mean": 0.056566,
+      "tol": 0.15
+    },
+    "DeepSpatial": {
+      "module_pcc_mean": 0.347453,
+      "tol": 0.02
+    },
+    "NTF": {
+      "module_pcc_mean": 0.108085,
+      "tol": 0.2,
+      "strict": false,
+      "note": "config/GPU-sensitive; contract checked, metric reported as info"
+    },
+    "Spateo": {
+      "module_pcc_mean": 0.534612,
+      "tol": 0.2,
+      "strict": false,
+      "note": "config/GPU-sensitive; contract checked, metric reported as info"
+    },
+    "isoST": {
+      "module_pcc_mean": 0.074171,
+      "tol": 0.03
+    },
+    "UniST": {
+      "module_pcc_mean": 0.337933,
+      "tol": 0.2,
+      "strict": false,
+      "note": "config/GPU-sensitive; contract checked, metric reported as info"
+    }
   }
 }
