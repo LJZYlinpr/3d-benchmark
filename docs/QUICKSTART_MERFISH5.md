@@ -9,6 +9,8 @@ GitHub at pinned commits or vendored under `vendor/`; no HPC paths are needed.
 ```bash
 git clone --depth 1 https://github.com/LJZYlinpr/3d-benchmark.git
 cd 3d-benchmark
+# or download the code-only tarball:
+# https://github.com/LJZYlinpr/3d-benchmark/releases/download/v0.3.0/3d_benchmark_code_v1.tar.gz
 export MERFISH5_ROOT="$PWD/work"          # experiment root
 export MERFISH5_UPSTREAM="$PWD/upstream/methods"
 mkdir -p "$MERFISH5_ROOT" "$MERFISH5_UPSTREAM"

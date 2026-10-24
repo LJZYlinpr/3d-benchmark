@@ -99,6 +99,17 @@ Download it with `scripts/fetch_data_merfish5.sh`; the Git tree contains only
 the manifest and hashes. Use `git clone --depth 1` for a small code-only
 checkout. Rebuild the single input with `scripts/build_observed_50um.py`.
 
+## Downloads
+
+- Code-only package: `v0.3.0` / `3d_benchmark_code_v1.tar.gz`
+  <https://github.com/LJZYlinpr/3d-benchmark/releases/download/v0.3.0/3d_benchmark_code_v1.tar.gz>
+- Data package: `data-v1` / `merfish_5slice_data_v1.tar.gz`
+  <https://github.com/LJZYlinpr/3d-benchmark/releases/download/data-v1/merfish_5slice_data_v1.tar.gz>
+
+The Git tree is code-only; use a shallow clone or the code tarball.  The data
+package is downloaded and SHA-256 verified by
+`scripts/fetch_data_merfish5.sh`.
+
 ## Quick start
 
 For the tested fresh-clone path see
