@@ -122,7 +122,7 @@ TORCH_OMNI_WHEEL="${TORCH_OMNI_WHEEL:-$ROOT/wheels/torch-2.6.0+cu124-cp310-cp310
 TORCHVISION_OMNI_WHEEL="${TORCHVISION_OMNI_WHEEL:-$ROOT/wheels/torchvision-0.21.0+cu124-cp310-cp310-linux_x86_64.whl}"
 download "https://mirrors.aliyun.com/pytorch-wheels/cu124/torch-2.6.0%2Bcu124-cp310-cp310-linux_x86_64.whl" "$TORCH_OMNI_WHEEL"
 download "https://mirrors.aliyun.com/pytorch-wheels/cu124/torchvision-0.21.0%2Bcu124-cp310-cp310-linux_x86_64.whl" "$TORCHVISION_OMNI_WHEEL"
-"$PIP2" install --no-cache-dir "$TORCH_OMNI_WHEEL" "$TORCHVISION_OMNI_WHEEL"
+"$PIP2" install --no-cache-dir --index-url "$PIP_INDEX" "$TORCH_OMNI_WHEEL" "$TORCHVISION_OMNI_WHEEL"
 "$PIP2" install -q --no-cache-dir --index-url "$PIP_INDEX" \
   lightning tensorboardX omegaconf rich einops "scikit-learn>=1.4" \
   timm torchdiffeq pot pytorch-lightning torch_geometric scanpy anndata

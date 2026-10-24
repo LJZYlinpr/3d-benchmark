@@ -33,6 +33,7 @@ points to a fix already in this repository or a remaining limitation.
 | Spateo target coords off by 1000 | target rows in µm, volumes in mm | handled: `volume_to_target.py`/`points_to_target.py` auto-scale and print the median NN distance |
 | isoST `ModuleNotFoundError: No module named 'utils'` | the upstream repo lacks the project-local `utils/` training directory | fixed: added `utils/{inference,ploting,postprocess,train_ode}.py` under `new_files/isoST`; `fetch_upstream.sh` copies them |
 | upstream tarball extraction failed with `Unexpected EOF` | a partial cached `*.tar.gz` was treated as complete | fixed: `fetch_upstream.sh` validates with `tar -tzf` and re-downloads |
+| Ada resolver conflict | `squidpy==1.3.0` requires `scikit-image<=0.20`; setup pinned 0.22 | fixed: both profiles pin `scikit-image==0.20.0` |
 | SpatialZ `No module named 'MENDER'` | `SOMENDER` (MENDER) and its `squidpy/shapely/numba` deps were not installed | fixed: setup installs `SOMENDER==1.1`, `shapely`, numba; Ada uses `squidpy==1.3.0` (1.2.3 requires numba<0.56) |
 | SINTER3D `CUDA out of memory` on GPU3 | a co-tenant already used ~19 GB on the 24 GB card | operational: run SINTER3D on a free GPU; it fits alone (GPU0 run: 4.7 min) |
 | PyG import failed on `torch_cluster.random_walk` | PyG node2vec/dropout reads an op missing from some torch_cluster builds | fixed: `scripts/patch_pyg_torch_cluster.py`, called by setup and the isoST runner |
