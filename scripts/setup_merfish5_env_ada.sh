@@ -89,6 +89,9 @@ download "https://mirrors.aliyun.com/pytorch-wheels/cu121/torch-2.3.1%2Bcu121-cp
   torchdiffeq geomloss "torch_geometric==2.3.1"
 "$PIP" install -q --no-cache-dir --no-deps --index-url "$PIP_INDEX" "SOMENDER==1.1"
 "$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" "setuptools==80.9.0"
+# squidpy 1.3+ pulls spatialdata/dask; SpatialZ/MENDER needs 1.2.3.
+# Install it without deps (its deps are already present) to avoid the numba<0.56 resolver conflict.
+"$PIP" install -q --no-cache-dir --no-deps --index-url "$PIP_INDEX" "squidpy==1.2.3"
 "$PIP" install -q --no-cache-dir torch-scatter torch-sparse torch-cluster \
   -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
 "$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" pykeops==2.2.3
@@ -146,7 +149,7 @@ export PYTORCH_CUDA_ALLOC_CONF="\${PYTORCH_CUDA_ALLOC_CONF:-max_split_size_mb:51
 export CUDA_HOME="$ADA_CUDA_HOME"
 export CUDA_PATH="$ADA_CUDA_HOME"
 export PATH="$ADA_CUDA_HOME/bin:\$PATH"
-export LD_LIBRARY_PATH="$ADA_CUDA_HOME/lib64:\$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$ADA_CUDA_HOME/lib64:\${LD_LIBRARY_PATH:-}"
 EOF
 chmod +x "$ROOT/env.sh"
 
