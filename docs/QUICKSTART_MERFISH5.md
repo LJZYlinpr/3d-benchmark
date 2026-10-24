@@ -113,8 +113,21 @@ python scripts/validate_predictions.py \
   --predictions "$MERFISH5_ROOT/predictions/M1a"
 ```
 
-This checks `pred`/`row_index` shape, finiteness and M1a row alignment. It does
-not compute paper metrics; use `metrics_v1_all` for the official metric suite.
+This checks `pred`/`row_index` shape, finiteness and M1a row alignment.
+
+Core expression metrics (module-mean gene PCC, pooled PCC, RMSE, MAE):
+
+```bash
+python scripts/evaluate_merfish5_predictions.py \
+  --canonical "$MERFISH5_ROOT/canonical" \
+  --predictions-root "$MERFISH5_ROOT/predictions" \
+  --modules manifests/merfish_5slice_modules.json \
+  --scenarios M1a \
+  --out "$MERFISH5_ROOT/metrics_m1a.csv"
+```
+
+The full paper metric suite is separate; this script covers the expression
+metrics used in the reproduction reports.
 
 ## Known caveats
 
