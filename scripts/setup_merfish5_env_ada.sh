@@ -83,7 +83,7 @@ download "https://mirrors.aliyun.com/pytorch-wheels/cu121/torch-2.3.1%2Bcu121-cp
 "$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" \
   "numpy==1.26.4" "pandas==2.0.0" "scipy==1.11.4" "anndata==0.9.1" \
   "scanpy==1.9.3" "scikit-learn==1.2.2" "h5py==3.11.0" \
-  "scikit-image==0.22.0" "statsmodels==0.14.1" "pot==0.9.3" \
+  "scikit-image==0.20.0" "statsmodels==0.14.1" "pot==0.9.3" \
   "squidpy==1.3.0" shapely "numba==0.59.1" "llvmlite==0.42.0" \
   pyyaml tqdm matplotlib seaborn pooch pillow platformdirs \
   torchdiffeq geomloss "torch_geometric==2.3.1"

@@ -78,7 +78,7 @@ PIP="$COMMON/bin/pip"
   "nvidia-cuda-nvrtc-cu11==11.8.89" "pykeops==2.2.3"
 "$PIP" install "numpy==1.22.2" "pandas==2.0.0" "scipy==1.10.1" \
   "anndata==0.9.1" "scikit-learn==1.2.2" "scanpy==1.9.3" \
-  "statsmodels==0.14.1" "h5py==3.11.0" "scikit-image==0.22.0" \
+  "statsmodels==0.14.1" "h5py==3.11.0" "scikit-image==0.20.0" \
   "pot==0.9.3" "squidpy==1.2.3" shapely "numba==0.55.2" "llvmlite==0.38.1" \
   pyyaml tqdm matplotlib seaborn
 "$PIP" install --no-deps "SOMENDER==1.1"
