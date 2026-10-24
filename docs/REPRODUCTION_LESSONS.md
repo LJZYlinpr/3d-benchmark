@@ -33,6 +33,9 @@ points to a fix already in this repository or a remaining limitation.
 | Spateo target coords off by 1000 | target rows in µm, volumes in mm | handled: `volume_to_target.py`/`points_to_target.py` auto-scale and print the median NN distance |
 | isoST `ModuleNotFoundError: No module named 'utils'` | the upstream repo lacks the project-local `utils/` training directory | fixed: added `utils/{inference,ploting,postprocess,train_ode}.py` under `new_files/isoST`; `fetch_upstream.sh` copies them |
 | upstream tarball extraction failed with `Unexpected EOF` | a partial cached `*.tar.gz` was treated as complete | fixed: `fetch_upstream.sh` validates with `tar -tzf` and re-downloads |
+| SpatialZ `No module named 'MENDER'` | `SOMENDER` (MENDER) and its `squidpy/shapely/numba` deps were not installed | fixed: setup scripts install `SOMENDER==1.1`, `squidpy==1.2.3`, `shapely`, and a compatible numba; pandas pinned 2.0.0 |
+| SINTER3D `CUDA out of memory` on GPU3 | a co-tenant already used ~19 GB on the 24 GB card | operational: run SINTER3D on a free GPU; it fits alone (GPU0 run: 4.7 min) |
+| PASTE OT step 425 s/combo on Ada | `ot` Sinkhorn path did not use the GPU efficiently with the current stack | known performance issue; budget ~7 min/combo in the 4-GPU matrix |
 
 ## Remaining limitations
 

@@ -81,11 +81,14 @@ TORCH_WHEEL="${TORCH_WHEEL:-$ROOT/wheels/torch-2.3.1+cu121-cp310-cp310-linux_x86
 download "https://mirrors.aliyun.com/pytorch-wheels/cu121/torch-2.3.1%2Bcu121-cp310-cp310-linux_x86_64.whl" "$TORCH_WHEEL"
 "$PIP" install --no-cache-dir --index-url "$PIP_INDEX" "$TORCH_WHEEL"
 "$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" \
-  "numpy==1.26.4" "pandas==2.0.3" "scipy==1.11.4" "anndata==0.9.1" \
+  "numpy==1.26.4" "pandas==2.0.0" "scipy==1.11.4" "anndata==0.9.1" \
   "scanpy==1.9.3" "scikit-learn==1.2.2" "h5py==3.11.0" \
   "scikit-image==0.22.0" "statsmodels==0.14.1" "pot==0.9.3" \
+  "squidpy==1.2.3" shapely "numba==0.59.1" "llvmlite==0.42.0" \
   pyyaml tqdm matplotlib seaborn pooch pillow platformdirs \
   torchdiffeq geomloss "torch_geometric==2.3.1"
+"$PIP" install -q --no-cache-dir --no-deps --index-url "$PIP_INDEX" "SOMENDER==1.1"
+"$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" "setuptools==80.9.0"
 "$PIP" install -q --no-cache-dir torch-scatter torch-sparse torch-cluster \
   -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
 "$PIP" install -q --no-cache-dir --index-url "$PIP_INDEX" pykeops==2.2.3

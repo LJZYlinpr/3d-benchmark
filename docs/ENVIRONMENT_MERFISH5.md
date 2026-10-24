@@ -250,3 +250,8 @@ The Ada script uses `virtualenv` when `python -m venv` has no ensurepip, and
 downloads torch wheels from a mirror if `download.pytorch.org` is unreachable.
 It writes `work/env.sh` with `PY_COMMON`, `PY_DEEPSPATIAL`, `PY_UNIST` and
 `CUDA_HOME`; the same wrapper is used.
+
+SpatialZ needs the `SOMENDER` package (module `MENDER`) plus
+`squidpy/shapely/numba`; pandas is pinned to 2.0.0.  The setup script installs
+these.  PASTE's OT step is slow on the current Ada stack (~425 s for a
+6000x6000 problem); account for that in the 4-GPU schedule.
