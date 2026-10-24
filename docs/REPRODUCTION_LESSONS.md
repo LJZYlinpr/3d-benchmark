@@ -31,6 +31,8 @@ points to a fix already in this repository or a remaining limitation.
 | UniST `add_safe_globals` missing | current SUICA code expects torch >=2.6 | fixed: `venv_omni` on torch 2.6; `setup_merfish5_env.sh` |
 | UniST `tensorboardX` missing | Lightning TensorBoardLogger dependency | fixed: setup installs `tensorboardX` |
 | Spateo target coords off by 1000 | target rows in µm, volumes in mm | handled: `volume_to_target.py`/`points_to_target.py` auto-scale and print the median NN distance |
+| isoST `ModuleNotFoundError: No module named 'utils'` | the upstream repo lacks the project-local `utils/` training directory | fixed: added `utils/{inference,ploting,postprocess,train_ode}.py` under `new_files/isoST`; `fetch_upstream.sh` copies them |
+| upstream tarball extraction failed with `Unexpected EOF` | a partial cached `*.tar.gz` was treated as complete | fixed: `fetch_upstream.sh` validates with `tar -tzf` and re-downloads |
 
 ## Remaining limitations
 

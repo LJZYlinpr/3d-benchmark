@@ -28,9 +28,18 @@ fetch_tar() {
   fi
   local tar="$CACHE/${repo}-${commit}.tar.gz"
   local url="https://codeload.github.com/$owner/$repo/tar.gz/$commit"
+  if [ -s "$tar" ] && ! tar -tzf "$tar" >/dev/null 2>&1; then
+    echo "[discard] incomplete cached tarball: $tar" >&2
+    rm -f "$tar"
+  fi
   if [ ! -s "$tar" ]; then
     echo "[download] $url"
     curl -L --retry 5 --retry-delay 5 -C - -o "$tar" "$url"
+  fi
+  if ! tar -tzf "$tar" >/dev/null 2>&1; then
+    echo "[error] invalid tarball after download: $tar" >&2
+    rm -f "$tar"
+    exit 1
   fi
   echo "[extract] $dir"
   mkdir -p "$dir"
