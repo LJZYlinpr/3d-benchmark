@@ -14,7 +14,7 @@ points to a fix already in this repository or a remaining limitation.
 | every runner failed on a new host | `common.py`/`_heart_common.py`/`_rb_common.py` hard-coded `/storage/...` | fixed: `MERFISH5_ROOT` |
 | upstream imports failed | `SINTER3D_DIR`/`ISOST_DIR`/`SPATIALZ_DIR`/`METHOD_DIR` hard-coded `/storage/.../xpy` | fixed: `MERFISH5_UPSTREAM`; SINTER3D falls back to `vendor/` |
 | 8 newer methods had no 5-slice runners | only heart adapters were in the package | fixed: `src/methods/merfish/*/run_merfish5.py` |
-| upstream code not reproducible | no fetch script, patches/new files missing | fixed: `scripts/fetch_upstream.sh` + `docs/upstream/patches/` + `new_files/` |
+| upstream code not reproducible | no fetch script, patches/new files missing | fixed: minimal code vendored under `vendor/methods/`; `fetch_upstream.sh` optional |
 | SINTER3D had no public commit | `no_vcs` in `method_commits.tsv` | fixed: 30 KB source vendored under `vendor/methods/SINTER3D` (no LICENSE in upstream tree; see NOTICE) |
 
 ## Runtime / environment
@@ -22,7 +22,7 @@ points to a fix already in this repository or a remaining limitation.
 | symptom | root cause | status |
 |---|---|---|
 | PASTE crashed at startup | script set `expandable_segments:True`, unsupported by torch 1.13 | fixed: version-aware allocator choice in `run_merfish5.py` |
-| isoST `Not compiled with CUDA support` | CPU-only `torch_cluster`; then `torch_sparse` missing | fixed: CUDA PyG wheels + `numpy-cuda-runtime`; documented in `setup_merfish5_env.sh` |
+| isoST `Not compiled with CUDA support` | CPU-only `torch_cluster`; then `torch_sparse` missing | fixed: CUDA PyG wheels for the documented profiles; `vendor/shims/torch_cluster` CPU fallback |
 | isoST `generic_logsumexp is not defined` | KeOps `backend="online"` needs pykeops/CUDA toolkit | fixed: local `cuda-nvcc 11.7` + pykeops 2.2.3 + compat `CUDA_HOME`; peak 10.8 GB |
 | NTF crashed in fallback | `HashEmbedder` got float args, no `n_output_dims`, `box_offsets` registered after `return` | fixed: `NTF_torch_fallback.patch` |
 | NTF held-out assertion failed | full-volume script assumed input observed = all grid-observed voxels | fixed: use input-observed voxels as observed; target voxels are sampled |
@@ -33,8 +33,9 @@ points to a fix already in this repository or a remaining limitation.
 | Spateo target coords off by 1000 | target rows in µm, volumes in mm | handled: `volume_to_target.py`/`points_to_target.py` auto-scale and print the median NN distance |
 | isoST `ModuleNotFoundError: No module named 'utils'` | the upstream repo lacks the project-local `utils/` training directory | fixed: added `utils/{inference,ploting,postprocess,train_ode}.py` under `new_files/isoST`; `fetch_upstream.sh` copies them |
 | upstream tarball extraction failed with `Unexpected EOF` | a partial cached `*.tar.gz` was treated as complete | fixed: `fetch_upstream.sh` validates with `tar -tzf` and re-downloads |
-| SpatialZ `No module named 'MENDER'` | `SOMENDER` (MENDER) and its `squidpy/shapely/numba` deps were not installed | fixed: setup scripts install `SOMENDER==1.1`, `squidpy==1.2.3`, `shapely`, and a compatible numba; pandas pinned 2.0.0 |
+| SpatialZ `No module named 'MENDER'` | `SOMENDER` (MENDER) and its `squidpy/shapely/numba` deps were not installed | fixed: setup installs `SOMENDER==1.1`, `shapely`, numba; Ada uses `squidpy==1.3.0` (1.2.3 requires numba<0.56) |
 | SINTER3D `CUDA out of memory` on GPU3 | a co-tenant already used ~19 GB on the 24 GB card | operational: run SINTER3D on a free GPU; it fits alone (GPU0 run: 4.7 min) |
+| PyG import failed on `torch_cluster.random_walk` | PyG node2vec/dropout reads an op missing from some torch_cluster builds | fixed: `scripts/patch_pyg_torch_cluster.py`, called by setup and the isoST runner |
 | PASTE OT step 425 s/combo on Ada | `ot` Sinkhorn path did not use the GPU efficiently with the current stack | known performance issue; budget ~7 min/combo in the 4-GPU matrix |
 
 ## Remaining limitations
