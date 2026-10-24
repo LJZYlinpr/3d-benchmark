@@ -35,6 +35,8 @@ source "$MERFISH5_ROOT/env.sh"
 The scripts create `venv` (core/isoST/NTF/Spateo), `venv_omni`
 (DeepSpatial/UniST), and a local CUDA toolkit if needed. They never modify the
 system/conda base environment. Exact versions are pinned in `envs/merfish5/`.
+`scripts/reproduce_m1a.sh` auto-selects the Ada profile when it detects an
+sm_89/sm_90 GPU; set `MERFISH5_PROFILE=common` or `ada` to override.
 
 ## 3. Build data and run all ten methods
 

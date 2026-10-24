@@ -17,6 +17,13 @@ export MERFISH5_SCENARIO="${MERFISH5_SCENARIO:-M1a}"
 export SCENARIO="$MERFISH5_SCENARIO"
 mkdir -p "$MERFISH5_ROOT"
 
+if [ -z "${MERFISH5_PROFILE:-}" ] && command -v nvidia-smi >/dev/null 2>&1; then
+  CAP="$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | tr -d ' ')"
+  case "$CAP" in
+    8.9|9.0) export MERFISH5_PROFILE=ada ;;
+  esac
+fi
+
 if [ ! -f "$MERFISH5_ROOT/env.sh" ] && [ "${SKIP_ENV:-0}" != "1" ]; then
   if [ "${MERFISH5_PROFILE:-}" = "ada" ]; then
     bash "$REPO/scripts/setup_merfish5_env_ada.sh"
