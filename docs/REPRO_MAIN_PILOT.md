@@ -41,16 +41,16 @@ Predictions (target-only contract):
 | Spateo | DONE | ~5 min | ~1.1 GB (torch) | 0.0819 |
 | isoST | DONE | 137.5 s | 21,278 MB | 0.2000 |
 | DeepSpatial | DONE | 350.5 s | 10,224 MB | 0.0686 |
-| UniST | RUNNING | started 10:45 | 1.3 GB | — |
+| UniST | DONE | 1,369.9 s | 1,558 MB | 0.0369 |
 
 `validate_predictions.py`:
 
 ```text
-[ok] 9 prediction files
+[ok] 10 prediction files
 ```
 
-UniST is CPU-heavy in the SUICA phase; on server 1 it took ~52 min.  It was
-still running when this pilot was recorded.
+All ten methods completed; UniST is CPU-heavy in the SUICA phase (~23 min on
+main).
 
 ## Main-specific fixes now in Git
 
@@ -72,9 +72,17 @@ tarball validation), `44acd08` (SpatialZ deps).  The pilot env was built from
 fresh clone at `44acd08` should reproduce the environment with
 `scripts/setup_merfish5_env_ada.sh`.
 
+## Data / code separation
+
+The five shards and grid are now the separate GitHub release asset
+`data-v1/merfish_5slice_data_v1.tar.gz` (SHA-256 `187af1...ab08`).  The Git
+tree is code-only; `scripts/fetch_data_merfish5.sh` downloads and verifies the
+data.  The full matrix was launched from the isolated main checkout on GPUs
+0, 1, 4, 5 (GPU3 had a co-tenant).
+
 ## Full matrix
 
-Not started.  Proposed four-GPU schedule:
+Started 2026-10-24 11:14 after the M1a pilot.  Proposed four-GPU schedule:
 
 ```text
 GPU0: UniST x 7

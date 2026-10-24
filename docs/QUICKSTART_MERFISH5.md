@@ -7,7 +7,7 @@ GitHub at pinned commits or vendored under `vendor/`; no HPC paths are needed.
 ## 1. Clone and layout
 
 ```bash
-git clone https://github.com/LJZYlinpr/3d-benchmark.git
+git clone --depth 1 https://github.com/LJZYlinpr/3d-benchmark.git
 cd 3d-benchmark
 export MERFISH5_ROOT="$PWD/work"          # experiment root
 export MERFISH5_UPSTREAM="$PWD/upstream/methods"
@@ -59,7 +59,13 @@ commits in `docs/upstream/method_commits.tsv`, applies the recorded patches and
 copies the untracked new source. SINTER3D is already vendored under
 `vendor/SINTER3D/SINTER3D-master`; no fetch is needed for it.
 
-## 4. Build the input and canonical data
+## 4. Fetch the data package, then build input and canonical data
+
+The five shards + grid are a separate release asset (`data-v1`), not Git blobs:
+
+```bash
+bash scripts/fetch_data_merfish5.sh
+```
 
 ```bash
 python scripts/build_observed_50um.py \
@@ -73,7 +79,7 @@ cp data/merfish_5slice/grid_50um.npz "$MERFISH5_ROOT/grid_50um.npz"
 ```
 
 Expected: `canonical/{bins_all.h5ad,scenarios.json,target_gt.npz,READY}`.
-The committed shard rebuild is value-identical to the HPC `observed_50um.h5ad`;
+The released shard rebuild is value-identical to the HPC `observed_50um.h5ad`;
 the canonical hashes are recorded in `docs/REPRO_SERVER1.md`.
 
 ## 5. Run the ten methods on M1a

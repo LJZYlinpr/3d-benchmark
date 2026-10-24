@@ -73,7 +73,7 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
 3d_benchmark/
   README.md
   configs/                  protocol, resolutions, dataset configs
-  data/merfish_5slice/      compact committed MERFISH 5-slice 50 µm shards
+  data/merfish_5slice/      data manifest + download target (data is release data-v1)
   docs/                     data, methods, metrics, environment, reproduction
   docs/methods/             per-method/per-baseline reproduction notes
   envs/                     conda env exports (from-history) + merfish5 pip freezes
@@ -92,11 +92,12 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
   tests/                    smoke tests
 ```
 
-Raw cell-level `.h5ad`, predictions, and volumes are intentionally not
-committed. The exception is `data/merfish_5slice/`: five lossless per-slice
-50 µm shards (~116 MiB total) that let the 5-slice benchmark run without the
-2.9 GB raw MERFISH file. Rebuild the single input with
-`scripts/build_observed_50um.py`.
+Raw `.h5ad`, predictions, and volumes are intentionally not committed. The
+MERFISH 5-slice input is a **separate release asset** (`data-v1`:
+`merfish_5slice_data_v1.tar.gz`, five lossless per-slice 50 µm shards + grid).
+Download it with `scripts/fetch_data_merfish5.sh`; the Git tree contains only
+the manifest and hashes. Use `git clone --depth 1` for a small code-only
+checkout. Rebuild the single input with `scripts/build_observed_50um.py`.
 
 ## Quick start
 

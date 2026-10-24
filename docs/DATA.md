@@ -1,9 +1,9 @@
 # Data
 
-No raw cell-level `.h5ad`, prediction, or volume file is committed to this
-repository. The only committed data are five compact, lossless MERFISH 5-slice
-shards under `data/merfish_5slice/` (see below). The following describes the
-inputs used by the benchmark.
+No `.h5ad`, prediction, or volume file is committed to this repository. The
+MERFISH 5-slice input is a separate release asset (`data-v1`); this repository
+contains only its manifest and hashes under `data/merfish_5slice/`. The
+following describes all inputs used by the benchmark.
 
 ## MERFISH
 
@@ -23,16 +23,18 @@ sections .006-.010
 7 held-out scenarios M1a-M3a
 ```
 
-Committed compact input (no raw cells needed):
+Separate data package (no raw cells needed):
 
 ```text
-data/merfish_5slice/observed_50um_S1.h5ad ... S5.h5ad
-  122,669 50 µm bins x 1,122 genes, float32 CSR, ~116 MiB total
+data-v1 / merfish_5slice_data_v1.tar.gz
+  observed_50um_S1.h5ad ... S5.h5ad + grid_50um.npz
+  122,669 50 µm bins x 1,122 genes, float32 CSR, ~112 MiB tarball
 ```
 
-Rebuild the single file consumed by the canonical builder:
+Download and rebuild the single file consumed by the canonical builder:
 
 ```bash
+bash scripts/fetch_data_merfish5.sh
 python scripts/build_observed_50um.py \
   --shards-dir data/merfish_5slice \
   --out observed_50um.h5ad
