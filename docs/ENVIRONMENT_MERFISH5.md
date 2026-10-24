@@ -119,9 +119,13 @@ epochs, DeepSpatial 20 epochs, Ours-EncMTP 3,000 steps.
 - Status files are written into `$MERFISH5_ROOT/methods/<method>/` and must be
   cleared between runs.
 
-## Fetch upstream method code
+## Upstream method code
 
-The upstream trees are not in Git. Fetch the pinned commits with:
+Minimal upstream code is vendored under `vendor/methods/` and is the default
+`MERFISH5_UPSTREAM`.  No fetch step is needed for a fresh clone.
+`vendor/shims/torch_cluster` is a CPU `knn_graph` shim used by isoST.
+
+To refresh or inspect the full upstream trees at pinned commits:
 
 ```bash
 export MERFISH5_UPSTREAM=/path/to/upstream/methods
@@ -129,9 +133,8 @@ export MERFISH5_UPSTREAM=/path/to/upstream/methods
 ```
 
 This uses `codeload.github.com` tarballs, applies the recorded isoST/UniST/NTF
-patches and copies the untracked new files. SINTER3D has no public commit
-anchor and must be supplied separately as
-`$MERFISH5_UPSTREAM/SINTER3D/SINTER3D-master`.
+patches and copies the untracked new files.  The default one-command path does
+not call it.
 
 ## Server 1 exact additions (tested 2026-10-23)
 

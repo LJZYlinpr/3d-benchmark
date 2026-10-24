@@ -1,7 +1,8 @@
 # Data
 
 No `.h5ad`, prediction, or volume file is committed to this repository. The
-MERFISH 5-slice input is a separate release asset (`data-v1`); this repository
+MERFISH 5-slice input shards and grid are tracked in `data/merfish_5slice/`;
+an optional release asset (`data-v1`) mirrors them.  This repository
 contains only its manifest and hashes under `data/merfish_5slice/`. The
 following describes all inputs used by the benchmark.
 
@@ -26,7 +27,7 @@ sections .006-.010
 Separate data package (no raw cells needed):
 
 ```text
-data-v1 / merfish_5slice_data_v1.tar.gz
+data-v1 / merfish_5slice_data_v1.tar.gz   # optional mirror
   observed_50um_S1.h5ad ... S5.h5ad + grid_50um.npz
   122,669 50 µm bins x 1,122 genes, float32 CSR, ~112 MiB tarball
 ```
@@ -34,6 +35,7 @@ data-v1 / merfish_5slice_data_v1.tar.gz
 Download and rebuild the single file consumed by the canonical builder:
 
 ```bash
+# optional; the same shards are already tracked in data/merfish_5slice/
 bash scripts/fetch_data_merfish5.sh
 python scripts/build_observed_50um.py \
   --shards-dir data/merfish_5slice \

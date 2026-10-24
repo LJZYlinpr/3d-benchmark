@@ -74,10 +74,10 @@ fresh clone at `44acd08` should reproduce the environment with
 
 ## Data / code separation
 
-The five shards and grid are now the separate GitHub release asset
-`data-v1/merfish_5slice_data_v1.tar.gz` (SHA-256 `187af1...ab08`).  The Git
-tree is code-only; `scripts/fetch_data_merfish5.sh` downloads and verifies the
-data.  The full matrix was launched from the isolated main checkout on GPUs
+The five shards and grid are tracked in `data/merfish_5slice/`; the optional
+`data-v1/merfish_5slice_data_v1.tar.gz` release asset mirrors them.  The code
+tree also carries the minimal upstream method code under `vendor/methods/`.
+The full matrix was launched from the isolated main checkout on GPUs
 0, 1, 4, 5 (GPU3 had a co-tenant).
 
 ## Full matrix

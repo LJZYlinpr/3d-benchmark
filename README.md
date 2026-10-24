@@ -73,11 +73,12 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
 3d_benchmark/
   README.md
   configs/                  protocol, resolutions, dataset configs
-  data/merfish_5slice/      data manifest + download target (data is release data-v1)
+  data/merfish_5slice/      five lossless 50 µm shards + grid + SHA256SUMS
   docs/                     data, methods, metrics, environment, reproduction
   docs/methods/             per-method/per-baseline reproduction notes
   envs/                     conda env exports (from-history) + merfish5 pip freezes
-  vendor/SINTER3D/          vendored SINTER3D source (no public commit anchor)
+  vendor/methods/           minimal pinned upstream code for all ten methods
+  vendor/shims/             CPU torch_cluster shim for isoST
   manifests/                dataset/scenario/module manifests (no raw data)
   results/                  small summary tables, no predictions/volumes
   src/
@@ -92,29 +93,39 @@ current 5-slice workspace. A 54-slice manifest must be frozen before claiming a
   tests/                    smoke tests
 ```
 
-Raw `.h5ad`, predictions, and volumes are intentionally not committed. The
-MERFISH 5-slice input is a **separate release asset** (`data-v1`:
-`merfish_5slice_data_v1.tar.gz`, five lossless per-slice 50 µm shards + grid).
-Download it with `scripts/fetch_data_merfish5.sh`; the Git tree contains only
-the manifest and hashes. Use `git clone --depth 1` for a small code-only
-checkout. Rebuild the single input with `scripts/build_observed_50um.py`.
+Prediction files and volumes are intentionally not committed.  The five
+lossless MERFISH 5-slice shards and the query grid **are tracked** in
+`data/merfish_5slice/`; a release-asset copy (`data-v1`) is optional and can be
+fetched with `scripts/fetch_data_merfish5.sh`.  The minimal upstream method code
+is tracked under `vendor/methods/`; `scripts/fetch_upstream.sh` is only needed
+to refresh from upstream.  Rebuild the single input with
+`scripts/build_observed_50um.py` or run `scripts/reproduce_m1a.sh`.
 
 ## Downloads
 
 - Code-only package: `v0.3.0` / `3d_benchmark_code_v1.tar.gz`
   <https://github.com/LJZYlinpr/3d-benchmark/releases/download/v0.3.0/3d_benchmark_code_v1.tar.gz>
-- Data package: `data-v1` / `merfish_5slice_data_v1.tar.gz`
+- Data package (optional; the same shards are tracked in Git):
+  `data-v1` / `merfish_5slice_data_v1.tar.gz`
   <https://github.com/LJZYlinpr/3d-benchmark/releases/download/data-v1/merfish_5slice_data_v1.tar.gz>
 
-The Git tree is code-only; use a shallow clone or the code tarball.  The data
-package is downloaded and SHA-256 verified by
-`scripts/fetch_data_merfish5.sh`.
+A fresh clone contains both code and data.  `scripts/fetch_data_merfish5.sh`
+is optional for release-asset consumers and verifies the SHA-256.
 
 ## Quick start
 
 For the tested fresh-clone path see
-[`docs/QUICKSTART_MERFISH5.md`](docs/QUICKSTART_MERFISH5.md); the environment
-lessons are in [`docs/REPRODUCTION_LESSONS.md`](docs/REPRODUCTION_LESSONS.md).
+[`docs/QUICKSTART_MERFISH5.md`](docs/QUICKSTART_MERFISH5.md).  The complete
+one-command run is:
+
+```bash
+bash scripts/setup_merfish5_env.sh
+bash scripts/reproduce_m1a.sh
+```
+
+The data and minimal upstream code are vendored; only the Python environment
+is installed from the network.  Environment lessons are in
+[`docs/REPRODUCTION_LESSONS.md`](docs/REPRODUCTION_LESSONS.md).
 
 ### 1. Create an environment
 

@@ -1,0 +1,10 @@
+torch
+numpy
+anndata
+scanpy
+pyyaml
+tqdm
+scikit-image
+
+# please manually install:
+# tinycudann (https://github.com/NVlabs/tiny-cuda-nn)

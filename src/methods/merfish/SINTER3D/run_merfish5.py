@@ -39,7 +39,7 @@ SINTER3D_DIR = str(_UP_DIR if _UP_DIR and _UP_DIR.is_dir() else _VENDOR)
 if not os.path.isdir(SINTER3D_DIR):
     raise SystemExit(
         f"SINTER3D source not found at {_UP_DIR} or {_VENDOR}; "
-        "the repository should contain vendor/SINTER3D/SINTER3D-master")
+        "the repository should contain vendor/methods/SINTER3D/SINTER3D-master")
 if SINTER3D_DIR not in sys.path:
     sys.path.insert(0, SINTER3D_DIR)
 

@@ -2,7 +2,7 @@ method	repo_head	branch	vcs	patch	patch_sha256_16	note
 SpatialZ	e1b5ed01e933729149e08399febca08db16ced14	master	git	—	—	工作区无源码改动
 UniST	a2fd35a70a6080caab5fdd60652242f85059b09a	main	git	patches/UniST.patch	9f76e39dfd98802a	工作区源码改动 346 行，已导出 patch；另需未跟踪新源码 3 个（见 new_files/UniST.txt）
 isoST	805981c3fad66e3c9f5409816f95c17332906600	main	git	patches/isoST.patch	ddb741d45522db1a	工作区源码改动 162 行，已导出 patch；另需未跟踪新源码 1 个（见 new_files/isoST.txt）
-SINTER3D	no_vcs	-	no_vcs	—	—	方法目录无 .git；源码已 vendor 到 vendor/SINTER3D/SINTER3D-master
+SINTER3D	no_vcs	-	no_vcs	—	—	方法目录无 .git；源码已 vendor 到 vendor/methods/SINTER3D/SINTER3D-master
 PASTE-OT-Linear	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
 ReHo	no_vcs	-	no_vcs	—	—	方法目录无 .git，无 commit 锚点
 NTF	f0b4941a07330d9749567ef52df8bc9f5cef976a	main	git	patches/NTF_torch_fallback.patch	—	pure-PyTorch hash-grid fallback fixes

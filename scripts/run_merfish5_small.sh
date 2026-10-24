@@ -3,27 +3,36 @@
 #
 # Prerequisites:
 #   $MERFISH5_ROOT/canonical/{bins_all.h5ad,scenarios.json,target_gt.npz,READY}
-#   $MERFISH5_UPSTREAM/{SINTER3D/SINTER3D-master,isoST,SpatialZ,DeepSpatial}
+#   $MERFISH5_UPSTREAM/{SINTER3D,isoST,SpatialZ,DeepSpatial,...}
 #   a Python environment with torch/anndata/ot/scipy (+ method extras)
 #
 # Usage:
-#   export MERFISH5_ROOT=/path/to/all_methods
-#   export MERFISH5_UPSTREAM=/path/to/upstream/methods
-#   export PY_COMMON=/path/to/env/bin/python
-#   ./scripts/run_merfish5_small.sh                 # the six runnable methods
+#   export MERFISH5_ROOT=/path/to/work
+#   ./scripts/run_merfish5_small.sh                 # all ten methods
 #   ./scripts/run_merfish5_small.sh ReHo SpatialZ   # subset
 #
-# NTF/Spateo/UniST need additional upstream code and are not in this wrapper.
-# isoST is selectable but needs CUDA-enabled torch_cluster/torch_sparse.
+# Upstream code is vendored under vendor/methods by default; no fetch step.
+# isoST uses vendored/shims/torch_cluster when CUDA PyG is unavailable.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 : "${MERFISH5_ROOT:?set MERFISH5_ROOT to the experiment root containing canonical/}"
-: "${MERFISH5_UPSTREAM:?set MERFISH5_UPSTREAM to the upstream methods directory}"
+MERFISH5_UPSTREAM="${MERFISH5_UPSTREAM:-$ROOT/vendor/methods}"
+export MERFISH5_UPSTREAM
+export PYTHONPATH="${PYTHONPATH:-}:$ROOT/vendor/shims"
 PY_COMMON="${PY_COMMON:-python}"
 PY_DEEPSPATIAL="${PY_DEEPSPATIAL:-$PY_COMMON}"
 PY_UNIST="${PY_UNIST:-$PY_COMMON}"
+PY_ISOST="${PY_ISOST:-$PY_COMMON}"
 SCENARIO="${SCENARIO:-M1a}"
+PILOT="${PILOT:-0}"
+if [ "$PILOT" = "1" ]; then
+  OURS_STEPS=20; SINTER_STEPS=10; DEEP_EPOCHS=1; ISO_EPOCHS=1,1,1
+  NTF_ITERS=10; SPATEO_ITERS=20; UNIST_GAE=1; UNIST_INR=1
+else
+  OURS_STEPS=3000; SINTER_STEPS=3000; DEEP_EPOCHS=20; ISO_EPOCHS=20,20,20
+  NTF_ITERS=12000; SPATEO_ITERS=60000; UNIST_GAE=50; UNIST_INR=100
+fi
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 export CUDA_VISIBLE_DEVICES
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-8}"
@@ -39,7 +48,7 @@ mkdir -p "$MERFISH5_ROOT/predictions" "$MERFISH5_ROOT/methods"
 
 METHODS=("$@")
 if [ ${#METHODS[@]} -eq 0 ]; then
-  METHODS=(ReHo Ours-EncMTP PASTE-OT-Linear SpatialZ SINTER3D DeepSpatial)
+  METHODS=(ReHo Ours-EncMTP PASTE-OT-Linear SpatialZ SINTER3D DeepSpatial isoST NTF Spateo UniST)
 fi
 
 prepare_visible() {
@@ -71,6 +80,7 @@ run_one() {
   case "$method" in
     DeepSpatial) py="$PY_DEEPSPATIAL" ;;
     UniST) py="$PY_UNIST" ;;
+    isoST) py="$PY_ISOST" ;;
   esac
   echo "=== $method ($SCENARIO) ==="
   ( cd "$ROOT" && "$py" "$script" "$@" )
@@ -85,21 +95,21 @@ for method in "${METHODS[@]}"; do
     ReHo)
       run_one ReHo src/methods/merfish/ReHo/run_merfish5.py --scenarios "$SCENARIO" || fail=1 ;;
     Ours-EncMTP)
-      run_one Ours-EncMTP src/methods/merfish/Ours-EncMTP/run_merfish5.py --scenarios "$SCENARIO" --steps 3000 || fail=1 ;;
+      run_one Ours-EncMTP src/methods/merfish/Ours-EncMTP/run_merfish5.py --scenarios "$SCENARIO" --steps "$OURS_STEPS" || fail=1 ;;
     PASTE-OT-Linear)
       run_one PASTE-OT-Linear src/methods/merfish/PASTE-OT-Linear/run_merfish5.py --scenarios "$SCENARIO" || fail=1 ;;
     SpatialZ)
       run_one SpatialZ src/methods/merfish/SpatialZ/run_merfish5.py --scenario "$SCENARIO" || fail=1 ;;
     SINTER3D)
-      run_one SINTER3D src/methods/merfish/SINTER3D/run_merfish5.py --scenario "$SCENARIO" --steps 3000 || fail=1 ;;
+      run_one SINTER3D src/methods/merfish/SINTER3D/run_merfish5.py --scenario "$SCENARIO" --steps "$SINTER_STEPS" || fail=1 ;;
     DeepSpatial)
-      run_one DeepSpatial src/methods/merfish/DeepSpatial/run_merfish5.py --scenario "$SCENARIO" --epochs 20 || fail=1 ;;
+      run_one DeepSpatial src/methods/merfish/DeepSpatial/run_merfish5.py --scenario "$SCENARIO" --epochs "$DEEP_EPOCHS" || fail=1 ;;
     NTF)
       prepare_visible NTF || fail=1
       MERFISH5_OBSERVED="$MERFISH5_ROOT/NTF/visible_${SCENARIO}.h5ad" \
       MERFISH5_NTF_OUT="$MERFISH5_ROOT/NTF" \
       MERFISH5_GRID="$MERFISH5_ROOT/grid_50um.npz" \
-        run_one NTF src/methods/merfish/NTF/run_merfish5.py --n_iter 3000 --batch_size 8192 || fail=1
+        run_one NTF src/methods/merfish/NTF/run_merfish5.py --n_iter "$NTF_ITERS" --batch_size 8192 || fail=1
       "$PY_COMMON" scripts/volume_to_target.py \
         --volume "$MERFISH5_ROOT/NTF/NTF_50um_uniform.h5ad" \
         --target-gt "$MERFISH5_ROOT/canonical/target_gt.npz" \
@@ -109,7 +119,7 @@ for method in "${METHODS[@]}"; do
     Spateo)
       eval "$("$ROOT/scripts/make_spateo_shim.sh" "$ROOT/spateo_shim")"
       HO=$(holdout_iz)
-      run_one Spateo src/methods/merfish/Spateo/run_merfish5.py --holdout-iz "$HO" || fail=1
+      run_one Spateo src/methods/merfish/Spateo/run_merfish5.py --iters "$SPATEO_ITERS" --holdout-iz "$HO" || fail=1
       "$PY_COMMON" scripts/points_to_target.py \
         --points-npz "$MERFISH5_ROOT/Spateo/holdout_pred_m1a.npz" \
         --target-gt "$MERFISH5_ROOT/canonical/target_gt.npz" \
@@ -117,9 +127,10 @@ for method in "${METHODS[@]}"; do
         --out "$MERFISH5_ROOT/predictions/$SCENARIO/Spateo.npz" || fail=1
       ;;
     isoST)
-      run_one isoST src/methods/merfish/isoST/run_merfish5.py --scenario "$SCENARIO" --epochs 20,20,20 || fail=1 ;;
+      "$PY_ISOST" "$ROOT/scripts/patch_pyg_torch_cluster.py" || true
+      run_one isoST src/methods/merfish/isoST/run_merfish5.py --scenario "$SCENARIO" --epochs "$ISO_EPOCHS" || fail=1 ;;
     UniST)
-      run_one UniST src/methods/merfish/UniST/run_merfish5.py --scenario "$SCENARIO" --gae-epochs 300 --inr-epochs 400 || fail=1 ;;
+      run_one UniST src/methods/merfish/UniST/run_merfish5.py --scenario "$SCENARIO" --gae-epochs "$UNIST_GAE" --inr-epochs "$UNIST_INR" || fail=1 ;;
     *)
       echo "unknown method: $method" >&2; fail=1 ;;
   esac

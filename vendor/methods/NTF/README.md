@@ -1,0 +1,127 @@
+# Neural Transcriptomic Field (NTF)
+
+NTF is a deep learning framework for reconstructing continuous 3D gene expression fields from sparse spatial transcriptomics data. It uses a hash-grid-based implicit neural representation (INR) to model gene expression as a continuous function of 3D coordinates, enabling high-resolution reconstruction across multiple tissue sections.
+
+## Model Architecture
+
+![NTF Model Architecture](https://github.com/user-attachments/assets/99e34cce-9b46-4e1c-b5e0-a0c9c49bdd0b)
+
+The NTF model consists of the following key components:
+
+- **Hash Grid Encoding**: Multi-resolution hash grid that encodes 3D spatial coordinates into compact feature vectors.
+- **Expression Network (GeneINR)**: An MLP that maps encoded features to gene expression values using a softplus activation.
+- **Dropout Network**: An auxiliary MLP that predicts dropout probabilities to handle zero-inflation in spatial transcriptomics data.
+- **Slice Embedding**: Learnable embeddings for each tissue section to capture section-specific effects.
+- **Variance Network**: Predicts per-pixel uncertainty (variance) for probabilistic modeling.
+- **Bias Network** (optional): Predicts section-level bias corrections.
+
+## Installation
+
+Install [tiny-cuda-nn](https://github.com/NVlabs/tiny-cuda-nn):
+```bash
+pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+```
+
+Then install NTF:
+
+```bash
+pip install -e .
+```
+
+## Requirements
+
+See `requirements.txt` for the full list of dependencies. Key dependencies:
+- `torch`
+- `anndata`
+- `scipy`
+- `tqdm`
+- `tensorboard`
+
+## Usage
+
+### Python API
+
+```python
+import anndata
+import numpy as np
+import torch
+from NTF import train, sample_points
+from NTF.config import add_shared_args, process_args
+
+# Load your spatial transcriptomics data (AnnData format)
+adata = anndata.read_h5ad("your_data.h5ad")
+adata.obsm['spatial'] = adata.obsm['spatial'].astype(np.float32)
+
+# Parse and process arguments
+parser = add_shared_args()
+args = parser.parse_args([
+    "--input_data", "your_data.h5ad",
+    "--output_dir", "./output",
+    "--slice_id", "slice_id",   # obs column with section labels
+])
+args = process_args(args)
+
+# Compute spatial scaling factor (normalises coordinates to [0, 1] range)
+raw_bbox_size = (adata.obsm['spatial'].max(0) - adata.obsm['spatial'].min(0)).max()
+spatial_scaling = 1.0 / raw_bbox_size if raw_bbox_size > 0 else 1.0
+adata.obsm['spatial'] *= spatial_scaling
+
+# Train the model
+model = train(adata, args)
+
+# Sample gene expression at new 3D coordinates (apply the same scaling)
+xyz_raw = np.array([[x, y, z], ...], dtype=np.float32)
+xyz_scaled = torch.from_numpy(xyz_raw * spatial_scaling).to(args.device)
+output = sample_points(model.inr, xyz_scaled)
+expression = output["expression"]  # shape: [N, n_genes]
+```
+
+### Frequently Used Command-line Arguments
+
+| Argument | Default | Description |
+|---|---|---|
+| `--input_data` / `-i` | required | Path to `.h5ad` input file |
+| `--output_dir` / `-o` | required | Directory to save results |
+| `--slice_id` | required | `adata.obs` column for slice IDs |
+| `--n_iter` | 20000 | Total training iterations |
+| `--batch_size` | 8192 | Batch size |
+| `--learning_rate` | 1e-4 | Learning rate |
+| `--width` | 64 | MLP layer width |
+| `--depth` | 1 | MLP depth |
+| `--no_dropout` |  | Disable dropout prediction network (Only used with dense data) |
+
+## Input Data Format
+
+The model expects an `AnnData` object with:
+- `adata.X`: Gene expression matrix (cells × genes), can be sparse
+- `adata.obsm['spatial']`: 3D spatial coordinates (cells × 3)
+- `adata.obs[slice_id]`: Section/slice identifier column
+
+## Scripts
+
+The `scripts/` directory provides ready-to-use command-line tools built on top of the NTF library:
+
+| Script | Description |
+|---|---|
+| `train_and_eval.py` | Train an NTF model and evaluate reconstruction quality on a held-out test set. Supports both random and label-based train/test splitting. |
+| `generate_hires_convex.py` | Train a model and generate a high-resolution point cloud by sampling new coordinates inside the convex hull of the original tissue. |
+| `generate_hires_distfield.py` | Train a model and generate a high-resolution point cloud by sampling within a KD-Tree distance-field boundary, suitable for non-convex tissue shapes. |
+| `sectioning_data_prepare.py` | Train a model and pre-compute all assets (mesh, metadata) required by the interactive sectioning app. |
+| `sectioning_app.py` | Interactive Dash web app for in-silico virtual sectioning: define a cutting plane, run inference, and visualise gene expression or cell-type annotations on the 2D slice. |
+| `3D_visulization.py` | Interactive Dash web app for exploring `.h5ad` data in 3D: visualise categorical variables or multi-gene expression with filtering and adaptive opacity controls. |
+
+See [`scripts`](scripts/) for detailed usage instructions and argument descriptions.
+
+## Analysis
+
+Besides `scripts/`, the `analysis/` directory provides supplementary scripts for reproducing simulation experiments described in the paper:
+
+| Script | Description |
+|---|---|
+| `simulate_data.py` | Generate synthetic 3D spatial transcriptomics datasets of varying scale for benchmarking. |
+| `simu_sparse_interval.py` | Evaluate NTF reconstruction across different slice-sampling intervals (sparse slice input experiment). |
+| `simu_mixed_resolution.py` | Evaluate NTF reconstruction with mixed high/low-resolution slice inputs. |
+
+See [`analysis`](analysis/) for detailed usage instructions.
+
+

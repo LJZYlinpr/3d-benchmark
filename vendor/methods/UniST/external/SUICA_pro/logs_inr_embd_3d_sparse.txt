@@ -1,0 +1,506 @@
+./configs/ST/inr_embd_3d_sparse.yaml
+Current Configs:
+{
+│   'case': '3d_sparse',
+│   'dataset': {
+│   │   'type': 'ST3D',
+│   │   'data_file': 'logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/embedded-all.h5ad',
+│   │   'val_proportion': 0.2,
+│   │   'keep_ratio': True,
+│   │   'require_coordnorm': False,
+│   │   'preserve_z_scale': True,
+│   │   'z_scale_factor': 1.5
+│   },
+│   'pipeline': {
+│   │   'target': 'embeddings',
+│   │   'inr': {
+│   │   │   'model': 'FFN',
+│   │   │   'num_hidden_layers': 3,
+│   │   │   'num_hidden_features': 2048,
+│   │   │   'phase': 1000,
+│   │   │   'encoding_type': 'enhanced',
+│   │   │   'mapping_size': 128,
+│   │   │   'encoding_scales': [
+│   │   │   │   1,
+│   │   │   │   10,
+│   │   │   │   100
+│   │   │   ],
+│   │   │   'anisotropic_3d': True,
+│   │   │   'z_scales': [
+│   │   │   │   0.1,
+│   │   │   │   1.0,
+│   │   │   │   10.0
+│   │   │   ],
+│   │   │   'decoder': {
+│   │   │   │   'ckpt': 'logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/checkpoints/last.ckpt',
+│   │   │   │   'recon_loss': True,
+│   │   │   │   'finetune': True
+│   │   │   }
+│   │   },
+│   │   'optimization': {
+│   │   │   'seed': 8848,
+│   │   │   'epochs': 2000,
+│   │   │   'lr': 0.0001,
+│   │   │   'val_freq': 200,
+│   │   │   'logs': 'logs/GAE+FFN-3D-sparse/3d_sparse',
+│   │   │   'batch_size': 5000
+│   │   },
+│   │   'predict_mode': 'val',
+│   │   'reconstructed_data': 'reconstructed-val.h5ad'
+│   }
+}
+Seed set to 8848
+[CONF] conf     = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/configs/ST/inr_embd_3d_sparse.yaml
+[CONF] datafile = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/embedded-all.h5ad
+[CONF] logs_dir = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse
+Fitting ST embeddings with INR ...
+22653 5664
+val_idx[:10]=[15095, 21435, 16535, 19945, 26269, 10602, 11027, 12730, 20750, 18070]
+with pretrained decoder
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+You are using a CUDA device ('NVIDIA GeForce RTX 3090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780564340.665813 1298843 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1780564340.730017 1298843 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780564342.379360 1298843 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+┏━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃   ┃ Name          ┃ Type              ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0 │ fitting_model │ FourierFeatureNet │ 15.9 M │ train │     0 │
+│ 1 │ decoder       │ Decoder           │  1.4 M │ train │     0 │
+└───┴───────────────┴───────────────────┴────────┴───────┴───────┘
+Trainable params: 17.3 M                                                                                                                  
+Non-trainable params: 0                                                                                                                   
+Total params: 17.3 M                                                                                                                      
+Total estimated model params size (MB): 69.242                                                                                            
+Modules in train mode: 32                                                                                                                 
+Modules in eval mode: 0                                                                                                                   
+Total FLOPs: 0                                                                                                                            
+{
+    'val_fitting/mean_absolute_error': 5.951722621917725,
+    'val_fitting/mean_absolute_error_mask': 5.7796406745910645,
+    'val_fitting/mean_squared_error': 52.22771453857422,
+    'val_fitting/mean_squared_error_mask': 47.77882385253906,
+    'val_fitting/root_mean_squared_error': 6.340808391571045,
+    'val_fitting/cosine_similarity': np.float32(0.037770063),
+    'val_fitting/cosine_similarity_mask': np.float32(0.054313056),
+    'val_fitting/sam': np.float32(87.82636),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.03920627),
+    'val_fitting/spearmanr': np.float64(0.053345789097907735),
+    'val_fitting/pearsonr_mask': np.float32(0.08846426),
+    'val_fitting/spearmanr_mask': np.float64(0.08887850271715139)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.589276671409607,
+    'val_recon/mean_absolute_error_mask': 3.570133686065674,
+    'val_recon/mean_squared_error': 26.22515106201172,
+    'val_recon/mean_squared_error_mask': 61.701515197753906,
+    'val_recon/root_mean_squared_error': 3.4513509273529053,
+    'val_recon/cosine_similarity': np.float32(0.3760089),
+    'val_recon/cosine_similarity_mask': np.float32(0.4089797),
+    'val_recon/sam': np.float32(67.67239),
+    'val_recon/iou': np.float64(0.25393492836614445),
+    'val_recon/pearsonr': np.float32(0.2242562),
+    'val_recon/spearmanr': np.float64(0.24036348613948166),
+    'val_recon/pearsonr_mask': np.float32(0.19397166),
+    'val_recon/spearmanr_mask': np.float64(0.392504020838517)
+}
+{
+    'val_fitting/mean_absolute_error': 1.4375168085098267,
+    'val_fitting/mean_absolute_error_mask': 1.4201374053955078,
+    'val_fitting/mean_squared_error': 3.644486427307129,
+    'val_fitting/mean_squared_error_mask': 3.5337560176849365,
+    'val_fitting/root_mean_squared_error': 1.857492208480835,
+    'val_fitting/cosine_similarity': np.float32(0.9726479),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9623365),
+    'val_fitting/sam': np.float32(12.359422),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.9726428),
+    'val_fitting/spearmanr': np.float64(0.9687409761880981),
+    'val_fitting/pearsonr_mask': np.float32(0.9076343),
+    'val_fitting/spearmanr_mask': np.float64(0.8968785642595306)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.6458768844604492,
+    'val_recon/mean_absolute_error_mask': 2.8234925270080566,
+    'val_recon/mean_squared_error': 21.75105857849121,
+    'val_recon/mean_squared_error_mask': 47.54928207397461,
+    'val_recon/root_mean_squared_error': 3.145798683166504,
+    'val_recon/cosine_similarity': np.float32(0.5003641),
+    'val_recon/cosine_similarity_mask': np.float32(0.5087202),
+    'val_recon/sam': np.float32(58.720898),
+    'val_recon/iou': np.float64(0.2569096992238583),
+    'val_recon/pearsonr': np.float32(0.40647423),
+    'val_recon/spearmanr': np.float64(0.3614715075913794),
+    'val_recon/pearsonr_mask': np.float32(0.36993244),
+    'val_recon/spearmanr_mask': np.float64(0.5331107166543152)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3224003314971924,
+    'val_fitting/mean_absolute_error_mask': 1.3040071725845337,
+    'val_fitting/mean_squared_error': 3.017517566680908,
+    'val_fitting/mean_squared_error_mask': 2.919712781906128,
+    'val_fitting/root_mean_squared_error': 1.6848697662353516,
+    'val_fitting/cosine_similarity': np.float32(0.98032683),
+    'val_fitting/cosine_similarity_mask': np.float32(0.96898955),
+    'val_fitting/sam': np.float32(10.8225),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.98035204),
+    'val_fitting/spearmanr': np.float64(0.9766015697755633),
+    'val_fitting/pearsonr_mask': np.float32(0.9277099),
+    'val_fitting/spearmanr_mask': np.float64(0.9158096332328787)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.5741007328033447,
+    'val_recon/mean_absolute_error_mask': 2.738234043121338,
+    'val_recon/mean_squared_error': 20.270458221435547,
+    'val_recon/mean_squared_error_mask': 44.27676010131836,
+    'val_recon/root_mean_squared_error': 3.059035062789917,
+    'val_recon/cosine_similarity': np.float32(0.5593082),
+    'val_recon/cosine_similarity_mask': np.float32(0.55716765),
+    'val_recon/sam': np.float32(54.20919),
+    'val_recon/iou': np.float64(0.28714583118762316),
+    'val_recon/pearsonr': np.float32(0.48099518),
+    'val_recon/spearmanr': np.float64(0.3868122031434566),
+    'val_recon/pearsonr_mask': np.float32(0.44937712),
+    'val_recon/spearmanr_mask': np.float64(0.5611490688827578)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3292360305786133,
+    'val_fitting/mean_absolute_error_mask': 1.306100845336914,
+    'val_fitting/mean_squared_error': 3.033997058868408,
+    'val_fitting/mean_squared_error_mask': 2.9126017093658447,
+    'val_fitting/root_mean_squared_error': 1.6881859302520752,
+    'val_fitting/cosine_similarity': np.float32(0.980332),
+    'val_fitting/cosine_similarity_mask': np.float32(0.96905714),
+    'val_fitting/sam': np.float32(10.832665),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.98036796),
+    'val_fitting/spearmanr': np.float64(0.9765359118576808),
+    'val_fitting/pearsonr_mask': np.float32(0.92765725),
+    'val_fitting/spearmanr_mask': np.float64(0.9151532792019963)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.5637059211730957,
+    'val_recon/mean_absolute_error_mask': 2.753912925720215,
+    'val_recon/mean_squared_error': 20.259231567382812,
+    'val_recon/mean_squared_error_mask': 44.261138916015625,
+    'val_recon/root_mean_squared_error': 3.057918071746826,
+    'val_recon/cosine_similarity': np.float32(0.5582841),
+    'val_recon/cosine_similarity_mask': np.float32(0.5571338),
+    'val_recon/sam': np.float32(54.249504),
+    'val_recon/iou': np.float64(0.29837286015474473),
+    'val_recon/pearsonr': np.float32(0.4816595),
+    'val_recon/spearmanr': np.float64(0.3858117222728889),
+    'val_recon/pearsonr_mask': np.float32(0.45303413),
+    'val_recon/spearmanr_mask': np.float64(0.559992653228591)
+}
+{
+    'val_fitting/mean_absolute_error': 1.344005823135376,
+    'val_fitting/mean_absolute_error_mask': 1.3200184106826782,
+    'val_fitting/mean_squared_error': 3.089470386505127,
+    'val_fitting/mean_squared_error_mask': 2.96195125579834,
+    'val_fitting/root_mean_squared_error': 1.7033236026763916,
+    'val_fitting/cosine_similarity': np.float32(0.9799353),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9685727),
+    'val_fitting/sam': np.float32(10.929944),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.9799782),
+    'val_fitting/spearmanr': np.float64(0.9761354729310235),
+    'val_fitting/pearsonr_mask': np.float32(0.926752),
+    'val_fitting/spearmanr_mask': np.float64(0.9139600761177146)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.564460277557373,
+    'val_recon/mean_absolute_error_mask': 2.7554268836975098,
+    'val_recon/mean_squared_error': 20.203088760375977,
+    'val_recon/mean_squared_error_mask': 43.890743255615234,
+    'val_recon/root_mean_squared_error': 3.0548157691955566,
+    'val_recon/cosine_similarity': np.float32(0.56084394),
+    'val_recon/cosine_similarity_mask': np.float32(0.5609184),
+    'val_recon/sam': np.float32(54.03785),
+    'val_recon/iou': np.float64(0.30505051860399585),
+    'val_recon/pearsonr': np.float32(0.48587897),
+    'val_recon/spearmanr': np.float64(0.3862350869347822),
+    'val_recon/pearsonr_mask': np.float32(0.4589855),
+    'val_recon/spearmanr_mask': np.float64(0.560027741097887)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3596179485321045,
+    'val_fitting/mean_absolute_error_mask': 1.3344913721084595,
+    'val_fitting/mean_squared_error': 3.1569671630859375,
+    'val_fitting/mean_squared_error_mask': 3.0226681232452393,
+    'val_fitting/root_mean_squared_error': 1.722076416015625,
+    'val_fitting/cosine_similarity': np.float32(0.9794139),
+    'val_fitting/cosine_similarity_mask': np.float32(0.967976),
+    'val_fitting/sam': np.float32(11.067498),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97945225),
+    'val_fitting/spearmanr': np.float64(0.9755832576674738),
+    'val_fitting/pearsonr_mask': np.float32(0.9249902),
+    'val_fitting/spearmanr_mask': np.float64(0.9121639528864419)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.565650463104248,
+    'val_recon/mean_absolute_error_mask': 2.7667510509490967,
+    'val_recon/mean_squared_error': 20.301820755004883,
+    'val_recon/mean_squared_error_mask': 43.922359466552734,
+    'val_recon/root_mean_squared_error': 3.0599310398101807,
+    'val_recon/cosine_similarity': np.float32(0.55763865),
+    'val_recon/cosine_similarity_mask': np.float32(0.5592141),
+    'val_recon/sam': np.float32(54.211285),
+    'val_recon/iou': np.float64(0.312228329922829),
+    'val_recon/pearsonr': np.float32(0.48315737),
+    'val_recon/spearmanr': np.float64(0.3851550578520767),
+    'val_recon/pearsonr_mask': np.float32(0.4566404),
+    'val_recon/spearmanr_mask': np.float64(0.5562736480368238)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3588955402374268,
+    'val_fitting/mean_absolute_error_mask': 1.3372135162353516,
+    'val_fitting/mean_squared_error': 3.153001308441162,
+    'val_fitting/mean_squared_error_mask': 3.0344207286834717,
+    'val_fitting/root_mean_squared_error': 1.720890760421753,
+    'val_fitting/cosine_similarity': np.float32(0.9793953),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9677739),
+    'val_fitting/sam': np.float32(11.078109),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97943616),
+    'val_fitting/spearmanr': np.float64(0.975565351697502),
+    'val_fitting/pearsonr_mask': np.float32(0.92524433),
+    'val_fitting/spearmanr_mask': np.float64(0.9121705336749901)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.9175273180007935,
+    'val_recon/mean_absolute_error_mask': 2.729717493057251,
+    'val_recon/mean_squared_error': 20.366226196289062,
+    'val_recon/mean_squared_error_mask': 38.646507263183594,
+    'val_recon/root_mean_squared_error': 3.1332314014434814,
+    'val_recon/cosine_similarity': np.float32(0.58727306),
+    'val_recon/cosine_similarity_mask': np.float32(0.6279333),
+    'val_recon/sam': np.float32(52.642124),
+    'val_recon/iou': np.float64(0.3184101343308961),
+    'val_recon/pearsonr': np.float32(0.5092573),
+    'val_recon/spearmanr': np.float64(0.4103765948400328),
+    'val_recon/pearsonr_mask': np.float32(0.5273958),
+    'val_recon/spearmanr_mask': np.float64(0.6262902101608308)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3588955402374268,
+    'val_fitting/mean_absolute_error_mask': 1.3372135162353516,
+    'val_fitting/mean_squared_error': 3.153001308441162,
+    'val_fitting/mean_squared_error_mask': 3.0344207286834717,
+    'val_fitting/root_mean_squared_error': 1.720890760421753,
+    'val_fitting/cosine_similarity': np.float32(0.9793953),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9677739),
+    'val_fitting/sam': np.float32(11.078109),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97943616),
+    'val_fitting/spearmanr': np.float64(0.975565351697502),
+    'val_fitting/pearsonr_mask': np.float32(0.92524433),
+    'val_fitting/spearmanr_mask': np.float64(0.9121705336749901)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.9194570779800415,
+    'val_recon/mean_absolute_error_mask': 2.7282042503356934,
+    'val_recon/mean_squared_error': 20.35033416748047,
+    'val_recon/mean_squared_error_mask': 38.515113830566406,
+    'val_recon/root_mean_squared_error': 3.13279390335083,
+    'val_recon/cosine_similarity': np.float32(0.58827716),
+    'val_recon/cosine_similarity_mask': np.float32(0.62963015),
+    'val_recon/sam': np.float32(52.571278),
+    'val_recon/iou': np.float64(0.32089223703466996),
+    'val_recon/pearsonr': np.float32(0.5104104),
+    'val_recon/spearmanr': np.float64(0.41157113661840367),
+    'val_recon/pearsonr_mask': np.float32(0.52951115),
+    'val_recon/spearmanr_mask': np.float64(0.6290823517798944)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3588955402374268,
+    'val_fitting/mean_absolute_error_mask': 1.3372135162353516,
+    'val_fitting/mean_squared_error': 3.153001308441162,
+    'val_fitting/mean_squared_error_mask': 3.0344207286834717,
+    'val_fitting/root_mean_squared_error': 1.720890760421753,
+    'val_fitting/cosine_similarity': np.float32(0.9793953),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9677739),
+    'val_fitting/sam': np.float32(11.078109),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97943616),
+    'val_fitting/spearmanr': np.float64(0.975565351697502),
+    'val_fitting/pearsonr_mask': np.float32(0.92524433),
+    'val_fitting/spearmanr_mask': np.float64(0.9121705336749901)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.9127039909362793,
+    'val_recon/mean_absolute_error_mask': 2.7257823944091797,
+    'val_recon/mean_squared_error': 20.33483123779297,
+    'val_recon/mean_squared_error_mask': 38.468082427978516,
+    'val_recon/root_mean_squared_error': 3.1294143199920654,
+    'val_recon/cosine_similarity': np.float32(0.5881927),
+    'val_recon/cosine_similarity_mask': np.float32(0.6301649),
+    'val_recon/sam': np.float32(52.589638),
+    'val_recon/iou': np.float64(0.32389011590639755),
+    'val_recon/pearsonr': np.float32(0.5103228),
+    'val_recon/spearmanr': np.float64(0.4130244361482901),
+    'val_recon/pearsonr_mask': np.float32(0.5306063),
+    'val_recon/spearmanr_mask': np.float64(0.6309448626237336)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3588955402374268,
+    'val_fitting/mean_absolute_error_mask': 1.3372135162353516,
+    'val_fitting/mean_squared_error': 3.153001308441162,
+    'val_fitting/mean_squared_error_mask': 3.0344207286834717,
+    'val_fitting/root_mean_squared_error': 1.720890760421753,
+    'val_fitting/cosine_similarity': np.float32(0.9793953),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9677739),
+    'val_fitting/sam': np.float32(11.078109),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97943616),
+    'val_fitting/spearmanr': np.float64(0.975565351697502),
+    'val_fitting/pearsonr_mask': np.float32(0.92524433),
+    'val_fitting/spearmanr_mask': np.float64(0.9121705336749901)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.9210573434829712,
+    'val_recon/mean_absolute_error_mask': 2.7288057804107666,
+    'val_recon/mean_squared_error': 20.37481689453125,
+    'val_recon/mean_squared_error_mask': 38.449989318847656,
+    'val_recon/root_mean_squared_error': 3.136017322540283,
+    'val_recon/cosine_similarity': np.float32(0.58891994),
+    'val_recon/cosine_similarity_mask': np.float32(0.63055897),
+    'val_recon/sam': np.float32(52.53312),
+    'val_recon/iou': np.float64(0.3250519150212004),
+    'val_recon/pearsonr': np.float32(0.5112417),
+    'val_recon/spearmanr': np.float64(0.4145298626731436),
+    'val_recon/pearsonr_mask': np.float32(0.53120023),
+    'val_recon/spearmanr_mask': np.float64(0.6318117686065312)
+}
+{
+    'val_fitting/mean_absolute_error': 1.3588955402374268,
+    'val_fitting/mean_absolute_error_mask': 1.3372135162353516,
+    'val_fitting/mean_squared_error': 3.153001308441162,
+    'val_fitting/mean_squared_error_mask': 3.0344207286834717,
+    'val_fitting/root_mean_squared_error': 1.720890760421753,
+    'val_fitting/cosine_similarity': np.float32(0.9793953),
+    'val_fitting/cosine_similarity_mask': np.float32(0.9677739),
+    'val_fitting/sam': np.float32(11.078109),
+    'val_fitting/iou': 0,
+    'val_fitting/pearsonr': np.float32(0.97943616),
+    'val_fitting/spearmanr': np.float64(0.975565351697502),
+    'val_fitting/pearsonr_mask': np.float32(0.92524433),
+    'val_fitting/spearmanr_mask': np.float64(0.9121705336749901)
+}
+Decoder saved to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/decoder.pt
+h
+{
+    'val_recon/mean_absolute_error': 1.9199368953704834,
+    'val_recon/mean_absolute_error_mask': 2.728044271469116,
+    'val_recon/mean_squared_error': 20.387496948242188,
+    'val_recon/mean_squared_error_mask': 38.472816467285156,
+    'val_recon/root_mean_squared_error': 3.138941526412964,
+    'val_recon/cosine_similarity': np.float32(0.5894658),
+    'val_recon/cosine_similarity_mask': np.float32(0.63036644),
+    'val_recon/sam': np.float32(52.48089),
+    'val_recon/iou': np.float64(0.32818014809164725),
+    'val_recon/pearsonr': np.float32(0.51203084),
+    'val_recon/spearmanr': np.float64(0.4154655607149323),
+    'val_recon/pearsonr_mask': np.float32(0.53161037),
+    'val_recon/spearmanr_mask': np.float64(0.6324590891949666)
+}
+`Trainer.fit` stopped: `max_epochs=2000` reached.
+Epoch 1999/1999 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5/5 0:00:00 • 0:00:00 23.11it/s v_num: 0.000
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/mnt/data1/linpeiran/miniconda3/envs/unist/lib/python3.10/site-packages/lightning/pytorch/loops/prediction_loop.py:257: predict returned None if it was on purpose, ignore this warning...
+Writing to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/reconstruc
+ted-val.h5ad ... It may take some time ...
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2 0:00:00 • 0:00:00 82.96it/s  
+Current Configs:
+{
+│   'case': '3d_sparse',
+│   'dataset': {
+│   │   'type': 'ST3D',
+│   │   'data_file': '/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/embedded-all.h5ad',
+│   │   'val_proportion': 0.2,
+│   │   'keep_ratio': True,
+│   │   'require_coordnorm': False,
+│   │   'preserve_z_scale': True,
+│   │   'z_scale_factor': 1.5
+│   },
+│   'pipeline': {
+│   │   'target': 'embeddings',
+│   │   'inr': {
+│   │   │   'model': 'FFN',
+│   │   │   'num_hidden_layers': 3,
+│   │   │   'num_hidden_features': 2048,
+│   │   │   'phase': 1000,
+│   │   │   'encoding_type': 'enhanced',
+│   │   │   'mapping_size': 128,
+│   │   │   'encoding_scales': [
+│   │   │   │   1,
+│   │   │   │   10,
+│   │   │   │   100
+│   │   │   ],
+│   │   │   'anisotropic_3d': True,
+│   │   │   'z_scales': [
+│   │   │   │   0.1,
+│   │   │   │   1.0,
+│   │   │   │   10.0
+│   │   │   ],
+│   │   │   'decoder': {
+│   │   │   │   'ckpt': 'logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/checkpoints/last.ckpt',
+│   │   │   │   'recon_loss': True,
+│   │   │   │   'finetune': True
+│   │   │   },
+│   │   │   'dim_in': 3,
+│   │   │   'dim_out': 64
+│   │   },
+│   │   'optimization': {
+│   │   │   'seed': 8848,
+│   │   │   'epochs': 2000,
+│   │   │   'lr': 0.0001,
+│   │   │   'val_freq': 200,
+│   │   │   'logs': '/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse',
+│   │   │   'batch_size': 5000
+│   │   },
+│   │   'predict_mode': 'val',
+│   │   'reconstructed_data': 'reconstructed-val.h5ad'
+│   }
+}

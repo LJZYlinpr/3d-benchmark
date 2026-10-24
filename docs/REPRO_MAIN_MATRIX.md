@@ -62,10 +62,8 @@ to the paper table without freezing the same budgets/configs/seeds.
 
 ## Data / code separation
 
-- Code: Git `main` (latest tree is code-only).
-- Code tarball: `v0.3.0 / 3d_benchmark_code_v1.tar.gz`.
-- Data: `data-v1 / merfish_5slice_data_v1.tar.gz`, SHA-256
-  `187af1cc750634512b58c8333a86eb94dec5b619bd24b2074319f94fcc67ab08`.
-- `scripts/fetch_data_merfish5.sh` downloads and verifies the data package.
-- The Git history still contains the early data commits; use
-  `git clone --depth 1` or the code tarball for a small checkout.
+- Code + minimal vendored upstream: Git `main` (`vendor/methods/`).
+- Data: five shards + grid tracked in `data/merfish_5slice/`; optional release
+  mirror `data-v1 / merfish_5slice_data_v1.tar.gz` (SHA-256
+  `187af1cc750634512b58c8333a86eb94dec5b619bd24b2074319f94fcc67ab08`).
+- `scripts/fetch_data_merfish5.sh` is optional if the release mirror is used.

@@ -1,0 +1,35 @@
+case: 3d_sparse
+
+dataset:
+  type: GraphST3D
+  data_file: data/3D_data.h5ad
+  val_proportion: 0.2
+  keep_ratio: True
+  require_coordnorm: true
+  n_neighbors: 6
+  
+
+  use_anisotropic_knn: True    
+  z_weight: 2.0                
+  z_threshold: null             
+  
+  preserve_z_scale: True
+  z_scale_factor: 1.5
+
+pipeline:
+  embedder:
+    model: GAE
+    dim_hidden: [2048, 512, 128]
+    dim_latent: 64
+
+  optimization:
+    seed: 8848
+    epochs: 1000
+    lr: 1e-5
+    val_freq: 50
+    logs: logs/GAE-3D-sparse/${case}
+    batch_size: 512
+  
+  predict_mode: all
+  embedded_data: embedded-all.h5ad
+

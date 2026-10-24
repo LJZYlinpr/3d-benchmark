@@ -15,7 +15,7 @@ points to a fix already in this repository or a remaining limitation.
 | upstream imports failed | `SINTER3D_DIR`/`ISOST_DIR`/`SPATIALZ_DIR`/`METHOD_DIR` hard-coded `/storage/.../xpy` | fixed: `MERFISH5_UPSTREAM`; SINTER3D falls back to `vendor/` |
 | 8 newer methods had no 5-slice runners | only heart adapters were in the package | fixed: `src/methods/merfish/*/run_merfish5.py` |
 | upstream code not reproducible | no fetch script, patches/new files missing | fixed: `scripts/fetch_upstream.sh` + `docs/upstream/patches/` + `new_files/` |
-| SINTER3D had no public commit | `no_vcs` in `method_commits.tsv` | fixed: 30 KB source vendored under `vendor/SINTER3D` (no LICENSE in upstream tree; see NOTICE) |
+| SINTER3D had no public commit | `no_vcs` in `method_commits.tsv` | fixed: 30 KB source vendored under `vendor/methods/SINTER3D` (no LICENSE in upstream tree; see NOTICE) |
 
 ## Runtime / environment
 

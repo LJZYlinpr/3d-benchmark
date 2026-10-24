@@ -85,7 +85,7 @@ fetch_tar yyh030806 DeepSpatial fdb98657fca95679cc45adf3510a161de05bca08 "$UPSTR
 if [ -d "$UPSTREAM/SINTER3D/SINTER3D-master" ]; then
   echo "[info] using supplied SINTER3D tree under $UPSTREAM/SINTER3D"
 else
-  echo "[info] SINTER3D is vendored under vendor/SINTER3D/SINTER3D-master; no fetch needed"
+  echo "[info] SINTER3D is vendored under vendor/methods/SINTER3D/SINTER3D-master; no fetch needed"
 fi
 
 echo "[done] upstream root: $UPSTREAM"

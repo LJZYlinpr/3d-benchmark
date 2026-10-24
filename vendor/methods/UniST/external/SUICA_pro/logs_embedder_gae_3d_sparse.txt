@@ -1,0 +1,537 @@
+./configs/ST/embedder_gae_3d_sparse.yaml
+Current Configs:
+{
+│   'case': '3d_sparse',
+│   'dataset': {
+│   │   'type': 'GraphST3D',
+│   │   'data_file': 'data/3D_data.h5ad',
+│   │   'val_proportion': 0.2,
+│   │   'keep_ratio': True,
+│   │   'require_coordnorm': True,
+│   │   'n_neighbors': 6,
+│   │   'use_anisotropic_knn': True,
+│   │   'z_weight': 2.0,
+│   │   'z_threshold': None,
+│   │   'preserve_z_scale': True,
+│   │   'z_scale_factor': 1.5
+│   },
+│   'pipeline': {
+│   │   'embedder': {
+│   │   │   'model': 'GAE',
+│   │   │   'dim_hidden': [
+│   │   │   │   2048,
+│   │   │   │   512,
+│   │   │   │   128
+│   │   │   ],
+│   │   │   'dim_latent': 64
+│   │   },
+│   │   'optimization': {
+│   │   │   'seed': 8848,
+│   │   │   'epochs': 1000,
+│   │   │   'lr': 1e-05,
+│   │   │   'val_freq': 50,
+│   │   │   'logs': 'logs/GAE-3D-sparse/3d_sparse',
+│   │   │   'batch_size': 512
+│   │   },
+│   │   'predict_mode': 'all',
+│   │   'embedded_data': 'embedded-all.h5ad'
+│   }
+}
+Seed set to 8848
+[CONF] conf     = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/configs/ST/embedder_gae_3d_sparse.yaml
+[CONF] datafile = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/data/3D_data.h5ad
+[CONF] logs_dir = /mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse
+Using anisotropic KNN for 3D data: z_weight=2.0, z_threshold=None
+Extracting neighbors from CSR matrix (28317 nodes)...
+  Processed 2831/28317 nodes (9%)
+  Processed 5662/28317 nodes (19%)
+  Processed 8493/28317 nodes (29%)
+  Processed 11324/28317 nodes (39%)
+  Processed 14155/28317 nodes (49%)
+  Processed 16986/28317 nodes (59%)
+  Processed 19817/28317 nodes (69%)
+  Processed 22648/28317 nodes (79%)
+  Processed 25479/28317 nodes (89%)
+  Processed 28310/28317 nodes (99%)
+Neighbor extraction completed
+22653 5664
+val_idx[:10]=[15095, 21435, 16535, 19945, 26269, 10602, 11027, 12730, 20750, 18070]
+Extracting neighbors from CSR matrix (22653 nodes)...
+  Processed 2265/22653 nodes (9%)
+  Processed 4530/22653 nodes (19%)
+  Processed 6795/22653 nodes (29%)
+  Processed 9060/22653 nodes (39%)
+  Processed 11325/22653 nodes (49%)
+  Processed 13590/22653 nodes (59%)
+  Processed 15855/22653 nodes (69%)
+  Processed 18120/22653 nodes (79%)
+  Processed 20385/22653 nodes (89%)
+  Processed 22650/22653 nodes (99%)
+Neighbor extraction completed
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:607: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 0] = (self.coordinates[:, 0] - x_min) / x_range
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:608: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 1] = (self.coordinates[:, 1] - y_min) / y_range
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:609: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 2] = (self.coordinates[:, 2] - z_min) / z_range
+Extracting neighbors from CSR matrix (5664 nodes)...
+Neighbor extraction completed
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:607: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 0] = (self.coordinates[:, 0] - x_min) / x_range
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:608: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 1] = (self.coordinates[:, 1] - y_min) / y_range
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/datasets.py:609: ImplicitModificationWarning: Trying to modify attribute `.obsm` of view, initializing view as actual.
+  self.coordinates[:, 2] = (self.coordinates[:, 2] - z_min) / z_range
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780543643.462140   56327 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1780543643.520554   56327 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780543645.174675   56327 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+You are using a CUDA device ('NVIDIA GeForce RTX 3090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+┏━━━┳━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃   ┃ Name          ┃ Type ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0 │ fitting_model │ GAE  │  2.9 M │ train │     0 │
+└───┴───────────────┴──────┴────────┴───────┴───────┘
+Trainable params: 2.9 M                                                                                                                   
+Non-trainable params: 0                                                                                                                   
+Total params: 2.9 M                                                                                                                       
+Total estimated model params size (MB): 11.557                                                                                            
+Modules in train mode: 26                                                                                                                 
+Modules in eval mode: 0                                                                                                                   
+Total FLOPs: 0                                                                                                                            
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.6034733057022095,
+    'val/mean_absolute_error_mask': 3.7562623023986816,
+    'val/mean_squared_error': 26.625749588012695,
+    'val/mean_squared_error_mask': 62.59004211425781,
+    'val/root_mean_squared_error': 3.5226309299468994,
+    'val/cosine_similarity': np.float32(0.24667986),
+    'val/cosine_similarity_mask': np.float32(0.33007523),
+    'val/sam': np.float32(75.68576),
+    'val/iou': np.float64(0.33137310354005856),
+    'val/pearsonr': np.float32(0.049786005),
+    'val/spearmanr': np.float64(0.0365922945332227),
+    'val/pearsonr_mask': np.float32(0.06958758),
+    'val/spearmanr_mask': np.float64(0.05745535745553132)
+}
+Extra variable passed to LightningModule for training.
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5381659269332886,
+    'val/mean_absolute_error_mask': 2.555757761001587,
+    'val/mean_squared_error': 17.164583206176758,
+    'val/mean_squared_error_mask': 37.03944778442383,
+    'val/root_mean_squared_error': 2.882906913757324,
+    'val/cosine_similarity': np.float32(0.6421335),
+    'val/cosine_similarity_mask': np.float32(0.65678954),
+    'val/sam': np.float32(48.40091),
+    'val/iou': np.float64(0.17461482549054275),
+    'val/pearsonr': np.float32(0.57800657),
+    'val/spearmanr': np.float64(0.4190048493163737),
+    'val/pearsonr_mask': np.float32(0.57414734),
+    'val/spearmanr_mask': np.float64(0.6542036136808095)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5025529861450195,
+    'val/mean_absolute_error_mask': 2.532001495361328,
+    'val/mean_squared_error': 16.54780387878418,
+    'val/mean_squared_error_mask': 35.550533294677734,
+    'val/root_mean_squared_error': 2.8392691612243652,
+    'val/cosine_similarity': np.float32(0.65561634),
+    'val/cosine_similarity_mask': np.float32(0.67355955),
+    'val/sam': np.float32(47.425053),
+    'val/iou': np.float64(0.2068972207914994),
+    'val/pearsonr': np.float32(0.59509015),
+    'val/spearmanr': np.float64(0.43014113613464916),
+    'val/pearsonr_mask': np.float32(0.5927347),
+    'val/spearmanr_mask': np.float64(0.661252981503991)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.4984675645828247,
+    'val/mean_absolute_error_mask': 2.542800188064575,
+    'val/mean_squared_error': 16.36570930480957,
+    'val/mean_squared_error_mask': 34.857215881347656,
+    'val/root_mean_squared_error': 2.8227221965789795,
+    'val/cosine_similarity': np.float32(0.6593857),
+    'val/cosine_similarity_mask': np.float32(0.6778892),
+    'val/sam': np.float32(47.087536),
+    'val/iou': np.float64(0.2384191003276675),
+    'val/pearsonr': np.float32(0.6006168),
+    'val/spearmanr': np.float64(0.42956037470530073),
+    'val/pearsonr_mask': np.float32(0.5987503),
+    'val/spearmanr_mask': np.float64(0.6543613992782761)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5043083429336548,
+    'val/mean_absolute_error_mask': 2.5798985958099365,
+    'val/mean_squared_error': 16.870622634887695,
+    'val/mean_squared_error_mask': 35.88774108886719,
+    'val/root_mean_squared_error': 2.851308584213257,
+    'val/cosine_similarity': np.float32(0.6506942),
+    'val/cosine_similarity_mask': np.float32(0.6623547),
+    'val/sam': np.float32(47.5368),
+    'val/iou': np.float64(0.25938472412574454),
+    'val/pearsonr': np.float32(0.5919154),
+    'val/spearmanr': np.float64(0.4180605501440291),
+    'val/pearsonr_mask': np.float32(0.5861221),
+    'val/spearmanr_mask': np.float64(0.632041851380363)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.513259768486023,
+    'val/mean_absolute_error_mask': 2.62697696685791,
+    'val/mean_squared_error': 17.417394638061523,
+    'val/mean_squared_error_mask': 36.87743377685547,
+    'val/root_mean_squared_error': 2.8838918209075928,
+    'val/cosine_similarity': np.float32(0.6378676),
+    'val/cosine_similarity_mask': np.float32(0.6494201),
+    'val/sam': np.float32(48.315006),
+    'val/iou': np.float64(0.28201803200016334),
+    'val/pearsonr': np.float32(0.5780526),
+    'val/spearmanr': np.float64(0.4066877948131264),
+    'val/pearsonr_mask': np.float32(0.5701545),
+    'val/spearmanr_mask': np.float64(0.6123534851086567)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5195780992507935,
+    'val/mean_absolute_error_mask': 2.662095308303833,
+    'val/mean_squared_error': 17.913297653198242,
+    'val/mean_squared_error_mask': 37.91643524169922,
+    'val/root_mean_squared_error': 2.912710189819336,
+    'val/cosine_similarity': np.float32(0.6275249),
+    'val/cosine_similarity_mask': np.float32(0.63668305),
+    'val/sam': np.float32(48.97017),
+    'val/iou': np.float64(0.29832018967227725),
+    'val/pearsonr': np.float32(0.5673136),
+    'val/spearmanr': np.float64(0.39440949538536285),
+    'val/pearsonr_mask': np.float32(0.5576973),
+    'val/spearmanr_mask': np.float64(0.5924746490911241)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5220046043395996,
+    'val/mean_absolute_error_mask': 2.689476251602173,
+    'val/mean_squared_error': 18.26091766357422,
+    'val/mean_squared_error_mask': 38.63570022583008,
+    'val/root_mean_squared_error': 2.932738780975342,
+    'val/cosine_similarity': np.float32(0.6183962),
+    'val/cosine_similarity_mask': np.float32(0.62790763),
+    'val/sam': np.float32(49.560402),
+    'val/iou': np.float64(0.3104271021171442),
+    'val/pearsonr': np.float32(0.55747586),
+    'val/spearmanr': np.float64(0.3879821108508623),
+    'val/pearsonr_mask': np.float32(0.5465229),
+    'val/spearmanr_mask': np.float64(0.5787634184216287)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5325111150741577,
+    'val/mean_absolute_error_mask': 2.715977907180786,
+    'val/mean_squared_error': 18.673686981201172,
+    'val/mean_squared_error_mask': 39.27397918701172,
+    'val/root_mean_squared_error': 2.9584333896636963,
+    'val/cosine_similarity': np.float32(0.6108244),
+    'val/cosine_similarity_mask': np.float32(0.6206436),
+    'val/sam': np.float32(50.04941),
+    'val/iou': np.float64(0.321527055064663),
+    'val/pearsonr': np.float32(0.54947066),
+    'val/spearmanr': np.float64(0.3817455332669775),
+    'val/pearsonr_mask': np.float32(0.5383635),
+    'val/spearmanr_mask': np.float64(0.5683102671904056)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5334720611572266,
+    'val/mean_absolute_error_mask': 2.7170653343200684,
+    'val/mean_squared_error': 18.83931541442871,
+    'val/mean_squared_error_mask': 39.60490417480469,
+    'val/root_mean_squared_error': 2.964388847351074,
+    'val/cosine_similarity': np.float32(0.6099597),
+    'val/cosine_similarity_mask': np.float32(0.61769426),
+    'val/sam': np.float32(50.073563),
+    'val/iou': np.float64(0.32043765215847214),
+    'val/pearsonr': np.float32(0.54904014),
+    'val/spearmanr': np.float64(0.3815916631981676),
+    'val/pearsonr_mask': np.float32(0.53667176),
+    'val/spearmanr_mask': np.float64(0.5652073517961994)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5359433889389038,
+    'val/mean_absolute_error_mask': 2.7238709926605225,
+    'val/mean_squared_error': 19.108200073242188,
+    'val/mean_squared_error_mask': 40.203487396240234,
+    'val/root_mean_squared_error': 2.9766106605529785,
+    'val/cosine_similarity': np.float32(0.60672003),
+    'val/cosine_similarity_mask': np.float32(0.61131966),
+    'val/sam': np.float32(50.26626),
+    'val/iou': np.float64(0.32391744313533244),
+    'val/pearsonr': np.float32(0.5458775),
+    'val/spearmanr': np.float64(0.3810942800709162),
+    'val/pearsonr_mask': np.float32(0.532691),
+    'val/spearmanr_mask': np.float64(0.5623213097038327)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.536597728729248,
+    'val/mean_absolute_error_mask': 2.7489852905273438,
+    'val/mean_squared_error': 19.38533592224121,
+    'val/mean_squared_error_mask': 40.589561462402344,
+    'val/root_mean_squared_error': 2.995939254760742,
+    'val/cosine_similarity': np.float32(0.6003375),
+    'val/cosine_similarity_mask': np.float32(0.60686755),
+    'val/sam': np.float32(50.664417),
+    'val/iou': np.float64(0.3358031516922616),
+    'val/pearsonr': np.float32(0.53954464),
+    'val/spearmanr': np.float64(0.3793540619614664),
+    'val/pearsonr_mask': np.float32(0.52651936),
+    'val/spearmanr_mask': np.float64(0.5591466905843913)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5428831577301025,
+    'val/mean_absolute_error_mask': 2.7701852321624756,
+    'val/mean_squared_error': 19.75919532775879,
+    'val/mean_squared_error_mask': 41.1008415222168,
+    'val/root_mean_squared_error': 3.0201754570007324,
+    'val/cosine_similarity': np.float32(0.5918423),
+    'val/cosine_similarity_mask': np.float32(0.60070485),
+    'val/sam': np.float32(51.2162),
+    'val/iou': np.float64(0.34352355628951375),
+    'val/pearsonr': np.float32(0.53033924),
+    'val/spearmanr': np.float64(0.37657806542276584),
+    'val/pearsonr_mask': np.float32(0.51800895),
+    'val/spearmanr_mask': np.float64(0.552317926799589)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5439066886901855,
+    'val/mean_absolute_error_mask': 2.764157772064209,
+    'val/mean_squared_error': 19.864620208740234,
+    'val/mean_squared_error_mask': 41.28125762939453,
+    'val/root_mean_squared_error': 3.0233230590820312,
+    'val/cosine_similarity': np.float32(0.5918593),
+    'val/cosine_similarity_mask': np.float32(0.59881806),
+    'val/sam': np.float32(51.207153),
+    'val/iou': np.float64(0.3387849508435151),
+    'val/pearsonr': np.float32(0.53041947),
+    'val/spearmanr': np.float64(0.3763776682965716),
+    'val/pearsonr_mask': np.float32(0.5178512),
+    'val/spearmanr_mask': np.float64(0.5535690493974591)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5425670146942139,
+    'val/mean_absolute_error_mask': 2.768800973892212,
+    'val/mean_squared_error': 19.99401092529297,
+    'val/mean_squared_error_mask': 41.522491455078125,
+    'val/root_mean_squared_error': 3.0291965007781982,
+    'val/cosine_similarity': np.float32(0.5921332),
+    'val/cosine_similarity_mask': np.float32(0.59748566),
+    'val/sam': np.float32(51.168995),
+    'val/iou': np.float64(0.3420196616437029),
+    'val/pearsonr': np.float32(0.531384),
+    'val/spearmanr': np.float64(0.37847916542408144),
+    'val/pearsonr_mask': np.float32(0.51871634),
+    'val/spearmanr_mask': np.float64(0.5546386835516558)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5416284799575806,
+    'val/mean_absolute_error_mask': 2.768183946609497,
+    'val/mean_squared_error': 20.156312942504883,
+    'val/mean_squared_error_mask': 41.775047302246094,
+    'val/root_mean_squared_error': 3.0369534492492676,
+    'val/cosine_similarity': np.float32(0.5919263),
+    'val/cosine_similarity_mask': np.float32(0.5952657),
+    'val/sam': np.float32(51.18859),
+    'val/iou': np.float64(0.3456143518366543),
+    'val/pearsonr': np.float32(0.53131783),
+    'val/spearmanr': np.float64(0.3815731190841639),
+    'val/pearsonr_mask': np.float32(0.51812184),
+    'val/spearmanr_mask': np.float64(0.5562642682532336)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5440354347229004,
+    'val/mean_absolute_error_mask': 2.7780659198760986,
+    'val/mean_squared_error': 20.337034225463867,
+    'val/mean_squared_error_mask': 42.035343170166016,
+    'val/root_mean_squared_error': 3.0473885536193848,
+    'val/cosine_similarity': np.float32(0.5895918),
+    'val/cosine_similarity_mask': np.float32(0.59284955),
+    'val/sam': np.float32(51.31987),
+    'val/iou': np.float64(0.34858855473313877),
+    'val/pearsonr': np.float32(0.5289901),
+    'val/spearmanr': np.float64(0.38142239374305564),
+    'val/pearsonr_mask': np.float32(0.51609516),
+    'val/spearmanr_mask': np.float64(0.5575119518817083)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5393147468566895,
+    'val/mean_absolute_error_mask': 2.7907605171203613,
+    'val/mean_squared_error': 20.439085006713867,
+    'val/mean_squared_error_mask': 42.32181930541992,
+    'val/root_mean_squared_error': 3.0551135540008545,
+    'val/cosine_similarity': np.float32(0.5843806),
+    'val/cosine_similarity_mask': np.float32(0.58677626),
+    'val/sam': np.float32(51.695686),
+    'val/iou': np.float64(0.34950296193112346),
+    'val/pearsonr': np.float32(0.52341974),
+    'val/spearmanr': np.float64(0.37850400468049855),
+    'val/pearsonr_mask': np.float32(0.5108368),
+    'val/spearmanr_mask': np.float64(0.5534727391366941)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5453256368637085,
+    'val/mean_absolute_error_mask': 2.7569169998168945,
+    'val/mean_squared_error': 20.26327896118164,
+    'val/mean_squared_error_mask': 42.125083923339844,
+    'val/root_mean_squared_error': 3.0371439456939697,
+    'val/cosine_similarity': np.float32(0.5954001),
+    'val/cosine_similarity_mask': np.float32(0.5929415),
+    'val/sam': np.float32(50.952976),
+    'val/iou': np.float64(0.341113129601361),
+    'val/pearsonr': np.float32(0.5349632),
+    'val/spearmanr': np.float64(0.3873182406759564),
+    'val/pearsonr_mask': np.float32(0.5199481),
+    'val/spearmanr_mask': np.float64(0.563441229413657)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.5371932983398438,
+    'val/mean_absolute_error_mask': 2.7611396312713623,
+    'val/mean_squared_error': 20.333160400390625,
+    'val/mean_squared_error_mask': 42.407623291015625,
+    'val/root_mean_squared_error': 3.038992404937744,
+    'val/cosine_similarity': np.float32(0.59357774),
+    'val/cosine_similarity_mask': np.float32(0.58870995),
+    'val/sam': np.float32(51.096355),
+    'val/iou': np.float64(0.343998958647428),
+    'val/pearsonr': np.float32(0.5335487),
+    'val/spearmanr': np.float64(0.38733999044740275),
+    'val/pearsonr_mask': np.float32(0.5186714),
+    'val/spearmanr_mask': np.float64(0.5623107246231304)
+}
+Extra variable passed to LightningModule for validation.
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/utils.py:123: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+  scatter = ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c=z_norm, s=spot_size, cmap=cmap)
+{
+    'val/mean_absolute_error': 1.543236494064331,
+    'val/mean_absolute_error_mask': 2.779585838317871,
+    'val/mean_squared_error': 20.594627380371094,
+    'val/mean_squared_error_mask': 42.51744842529297,
+    'val/root_mean_squared_error': 3.0590572357177734,
+    'val/cosine_similarity': np.float32(0.58919644),
+    'val/cosine_similarity_mask': np.float32(0.5884359),
+    'val/sam': np.float32(51.341846),
+    'val/iou': np.float64(0.3531865171190896),
+    'val/pearsonr': np.float32(0.52900517),
+    'val/spearmanr': np.float64(0.38568799157884337),
+    'val/pearsonr_mask': np.float32(0.5152286),
+    'val/spearmanr_mask': np.float64(0.5602029243001203)
+}
+`Trainer.fit` stopped: `max_epochs=1000` reached.
+Epoch 999/999 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45/45 0:00:15 • 0:00:00 3.06it/s v_num: 0.000
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/mnt/data1/linpeiran/miniconda3/envs/unist/lib/python3.10/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'predict_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=79` in the `DataLoader` to improve performance.
+Extra variable passed to LightningModule for prediction.
+/mnt/data1/linpeiran/miniconda3/envs/unist/lib/python3.10/site-packages/lightning/pytorch/loops/prediction_loop.py:257: predict returned None if it was on purpose, ignore this warning...
+Writing to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/embedded-all.h
+5ad ... It may take some time ...
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00 • 0:00:00 57.49it/s  
+Current Configs:
+{
+│   'case': '3d_sparse',
+│   'dataset': {
+│   │   'type': 'GraphST3D',
+│   │   'data_file': '/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/data/3D_data.h5ad',
+│   │   'val_proportion': 0.2,
+│   │   'keep_ratio': True,
+│   │   'require_coordnorm': True,
+│   │   'n_neighbors': 6,
+│   │   'use_anisotropic_knn': True,
+│   │   'z_weight': 2.0,
+│   │   'z_threshold': None,
+│   │   'preserve_z_scale': True,
+│   │   'z_scale_factor': 1.5
+│   },
+│   'pipeline': {
+│   │   'embedder': {
+│   │   │   'model': 'GAE',
+│   │   │   'dim_hidden': [
+│   │   │   │   2048,
+│   │   │   │   512,
+│   │   │   │   128
+│   │   │   ],
+│   │   │   'dim_latent': 64,
+│   │   │   'dim_in': 155
+│   │   },
+│   │   'optimization': {
+│   │   │   'seed': 8848,
+│   │   │   'epochs': 1000,
+│   │   │   'lr': 1e-05,
+│   │   │   'val_freq': 50,
+│   │   │   'logs': '/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse',
+│   │   │   'batch_size': 512
+│   │   },
+│   │   'predict_mode': 'all',
+│   │   'embedded_data': 'embedded-all.h5ad'
+│   }
+}

@@ -10,8 +10,10 @@ predictions/
 grids/
 *.h5ad
 !data/merfish_5slice/
+!data/merfish_5slice/*.h5ad
 *.h5
 *.npz
+!data/merfish_5slice/*.npz
 *.log
 __pycache__/
 *.py[cod]

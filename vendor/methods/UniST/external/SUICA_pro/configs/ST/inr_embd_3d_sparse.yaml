@@ -1,0 +1,44 @@
+case: 3d_sparse
+
+dataset:
+  type: ST3D
+  data_file: logs/GAE-3D-sparse/${case}/lightning_logs/version_0/embedded-all.h5ad
+  val_proportion: 0.2
+  keep_ratio: True
+  require_coordnorm: False
+  preserve_z_scale: True
+  z_scale_factor: 1.5
+
+pipeline:
+  target: embeddings
+
+  inr:
+    model: FFN
+    num_hidden_layers: 3
+    num_hidden_features: 2048 
+    phase: 1000
+    
+    encoding_type: enhanced
+    
+    mapping_size: 128
+    
+    encoding_scales: [1, 10, 100]
+    
+    anisotropic_3d: True
+    z_scales: [0.1, 1.0, 10.0]
+    
+    decoder:
+      ckpt: logs/GAE-3D-sparse/${case}/lightning_logs/version_0/checkpoints/last.ckpt
+      recon_loss: True
+      finetune: True
+      
+  optimization:
+    seed: 8848
+    epochs: 2000
+    lr: 1e-4
+    val_freq: 200
+    logs: logs/GAE+FFN-3D-sparse/${case}
+    batch_size: 5000
+  
+  predict_mode: val
+  reconstructed_data: reconstructed-val.h5ad

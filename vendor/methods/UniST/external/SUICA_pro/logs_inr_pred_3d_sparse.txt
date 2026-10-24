@@ -1,0 +1,82 @@
+./configs/ST/inr_pred_3d_sparse.yaml
+Current Configs:
+{
+│   'case': '3d_sparse',
+│   'dataset': {
+│   │   'type': 'ST3D',
+│   │   'data_file': 'logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/embedded-all.h5ad',
+│   │   'val_proportion': 0.2,
+│   │   'keep_ratio': True,
+│   │   'require_coordnorm': False,
+│   │   'preserve_z_scale': True,
+│   │   'z_scale_factor': 1.5
+│   },
+│   'pipeline': {
+│   │   'target': 'embeddings',
+│   │   'prediction': {
+│   │   │   'ckpt': 'logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_0/checkpoints/last.ckpt'
+│   │   },
+│   │   'inr': {
+│   │   │   'model': 'FFN',
+│   │   │   'num_hidden_layers': 3,
+│   │   │   'num_hidden_features': 2048,
+│   │   │   'phase': 1000,
+│   │   │   'encoding_type': 'enhanced',
+│   │   │   'mapping_size': 128,
+│   │   │   'encoding_scales': [
+│   │   │   │   1,
+│   │   │   │   10,
+│   │   │   │   100
+│   │   │   ],
+│   │   │   'anisotropic_3d': True,
+│   │   │   'z_scales': [
+│   │   │   │   0.1,
+│   │   │   │   1.0,
+│   │   │   │   10.0
+│   │   │   ],
+│   │   │   'decoder': {
+│   │   │   │   'ckpt': 'logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/checkpoints/last.ckpt',
+│   │   │   │   'recon_loss': True,
+│   │   │   │   'finetune': True
+│   │   │   }
+│   │   },
+│   │   'optimization': {
+│   │   │   'seed': 8848,
+│   │   │   'epochs': 2000,
+│   │   │   'lr': 0.0001,
+│   │   │   'val_freq': 200,
+│   │   │   'logs': 'logs/GAE+FFN-3D-sparse/3d_sparse',
+│   │   │   'batch_size': 8192
+│   │   },
+│   │   'predict_mode': 'custom',
+│   │   'custom_coords_file': 'data/preprocessed_data/custom_coords_3d_norm.npy',
+│   │   'reconstructed_data': 'reconstructed-custom-3d.h5ad'
+│   }
+}
+Seed set to 8848
+ loaded from: 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE-3D-sparse/3d_sparse/lightning_logs/version_0/checkpoints/la
+st.ckpt
+Detected custom coord dim: 3D
+Predicting ST embeddings with INR ...
+dim_in=3, dim_out=64
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+Start custom coordinate prediction...
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+You are using a CUDA device ('NVIDIA GeForce RTX 3090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780566380.925526 2352593 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1780566380.981757 2352593 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780566382.736803 2352593 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/mnt/data1/linpeiran/miniconda3/envs/unist/lib/python3.10/site-packages/lightning/pytorch/loops/prediction_loop.py:257: predict returned None if it was on purpose, ignore this warning...
+Writing to 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_1/reconstruc
+ted-custom-3d.h5ad ... It may take some time ...
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:00:00 • 0:00:00 0.00it/s  
+Custom prediction saved under: 
+/mnt/nfs/linpeiran/data/AIgnite/002/baseline/UniST/external/SUICA_pro/logs/GAE+FFN-3D-sparse/3d_sparse/lightning_logs/version_1

@@ -139,7 +139,7 @@ pyquaternion==0.9.9
 python-dateutil==2.9.0.post0
 pytorch-lightning==1.9.5
 pytz==2025.2
-pyvista @ file:///mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/wheels_spateo/pyvista-0.46.5-py3-none-any.whl
+# local wheel: use scripts/setup_merfish5_env.sh or install the matching CUDA PyG wheel
 PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.36.2
@@ -170,9 +170,9 @@ tinycss2==1.4.0
 tomli==2.4.0
 toolz==1.1.0
 torch==1.13.1+cu117
-torch-cluster @ file:///mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/wheels/torch_cluster-1.6.1%2Bpt113cu117-cp39-cp39-linux_x86_64.whl
-torch-scatter @ file:///mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/wheels/torch_scatter-2.1.1%2Bpt113cu117-cp39-cp39-linux_x86_64.whl
-torch-sparse @ file:///mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/wheels/torch_sparse-0.6.17%2Bpt113cu117-cp39-cp39-linux_x86_64.whl
+# local wheel: use scripts/setup_merfish5_env.sh or install the matching CUDA PyG wheel
+# local wheel: use scripts/setup_merfish5_env.sh or install the matching CUDA PyG wheel
+# local wheel: use scripts/setup_merfish5_env.sh or install the matching CUDA PyG wheel
 torch_geometric==2.3.1
 torchaudio==0.13.0+rocm5.2
 torchdiffeq==0.2.5
@@ -188,7 +188,7 @@ tzdata==2025.3
 umap-learn==0.5.7
 urllib3==1.26.12
 validators==0.35.0
-vtk @ file:///mnt/data1/linpeiran/tmp/3d_benchmark_repro_20261023/wheels_spateo/vtk-9.6.2-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+# local wheel: use scripts/setup_merfish5_env.sh or install the matching CUDA PyG wheel
 wcwidth==0.2.14
 webencodings==0.5.1
 Werkzeug==3.1.4
